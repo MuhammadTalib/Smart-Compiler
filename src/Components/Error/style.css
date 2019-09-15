@@ -1,0 +1,8 @@
+.errorwrapper{
+    position: relative;
+    width: 100.4%;
+    margin-top: -5px;
+    height: 164px !important;
+    background-color: #012c5e;
+    z-index: 2;
+}

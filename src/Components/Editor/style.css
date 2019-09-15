@@ -2,9 +2,8 @@
     position: relative;
     width: 80%;
     left:100%;
-    background-color: #00f;
     transform: translateX(-100%);
-    margin-left: -4px;
+   
 }
 
 .texteditor{
@@ -26,13 +25,4 @@
     background-color: #1b62a5;
     color: antiquewhite;
     z-index: 1;
-}
-
-.errorwrapper{
-    position: relative;
-    width: 100.4%;
-    margin-top: -5px;
-    height: 164px !important;
-    background-color: #012c5e;
-    z-index: 2;
 }

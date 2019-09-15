@@ -1,0 +1,11 @@
+.menubuttonwrapper{
+    position: absolute !important;
+    top:50%;
+    transform: translateY(-50%);
+    width:110px;
+}
+.btn{
+    width:110px;
+    border-radius: 0% !important;
+    font-size: 12px !important;
+}
