@@ -2,37 +2,7 @@ import React from 'react';
 import './App.css';
 import Editor from './Components/Editor/Editor';
 import MenuBar from "./Components/MenuBar/Menubar"
-
-// function onFilesChange(files) {
-//   console.log(files)
-// }
-
-// function onFilesError(error, file) {
-//   console.log('error code ' + error.code + ': ' + error.message)
-// }
-// function App() {
-//   return (
-//     <div>
-//       {/* <MenuBar />
-//       <Editor /> */}
-//       <Files
-//         className='files-dropzone'
-//         onChange={onFilesChange}
-//         onError={onFilesError}
-//         accepts={['image/png', '.pdf', 'audio/*','.txt']}
-//         multiple
-//         maxFiles={3}
-//         maxFileSize={10000000}
-//         minFileSize={0}
-//         clickable
-//       >
-//         Drop files here or click to upload
-//         </Files>
-//     </div>
-//   );
-// }
-
-// export default App;
+import { Regex } from './Backend/LexicalAnalyzer/regex';
 
 class App extends React.Component {
   constructor(props) {
@@ -71,6 +41,9 @@ class App extends React.Component {
          })}
        </div>*/
       <React.Fragment>
+        <button onClick={()=>{
+          Regex("'a'")
+        }}>ahdhjwgdjgwjdwdw</button>
         <MenuBar />
         <Editor />
       </React.Fragment>

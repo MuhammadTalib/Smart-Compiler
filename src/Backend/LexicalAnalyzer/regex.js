@@ -5,10 +5,13 @@ export const Regex = (regex) => {
     console.log(/^([A-Z]|[a-z])\w*$/.test(regex)); //identifiers
     console.log(/^[+|-]\d$/.test(regex)); //int
     console.log(/^([+|-]?\d+)?.\d*$/.test(regex)); //float
+
     var charA ="\\'[\\\\][nortb]\\'";
     var charB="\\'[\\\\][\\'\\\"\\\\]\\'";
     var charC="\\'[!@#$%^&*()_=+-|:;,.?}~`{]\\'";
-    console.log("regex",charC+"|"+charA+"+|"+charB+"|"+charA);
+    var charConst=charC+"|"+charA+"+|"+charB+"|"+charA;
+
+    console.log("regex",charC+"|"+charA+"+|"+charB+"|"+charA.test(regex));
 
     console.log(/^[^\\|\\]$/.test(regex)); //float
     //console.log(B.test(regex));
@@ -17,7 +20,7 @@ export const Regex = (regex) => {
 
 
 }
-export const identifierRegex = (word) = {
+export const identifierRegex = (word) => {
 
 }
 
