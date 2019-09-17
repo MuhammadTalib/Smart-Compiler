@@ -41,9 +41,6 @@ class App extends React.Component {
          })}
        </div>*/
       <React.Fragment>
-        <button onClick={()=>{
-          Regex("'a'")
-        }}>ahdhjwgdjgwjdwdw</button>
         <MenuBar />
         <Editor />
       </React.Fragment>

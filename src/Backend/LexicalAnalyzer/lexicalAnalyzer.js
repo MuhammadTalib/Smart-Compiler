@@ -1,5 +1,5 @@
 import { wordBreaker } from './wordBreaker';
-import { isIdentifier, isKeyWord, isPunctuator, isOperator } from './validationFunctions';
+import { isIdentifier, isKeyWord, isPunctuator, isOperator, isStringConstant,isIntConstant, isFloatConstant } from './validationFunctions';
 import { isAlphabet } from './validationFunctions';
 
 export const lexicalAnalyzer = (text) => {
@@ -41,6 +41,15 @@ export const lexicalAnalyzer = (text) => {
         else if(isOperator(temp.word)){
             tokenSet.push({CP:isOperator(temp.word),VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
         }
+        else if(isIntConstant(temp.word)){
+            tokenSet.push({CP:"CONST",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
+        }
+        else if(isStringConstant(temp.word)){
+            tokenSet.push({CP:"CONST",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
+        }
+        else if(isFloatConstant(temp.word)){
+            tokenSet.push({CP:"CONST",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
+        }   
         else{
             tokenSet.push({CP:"Invalid Lexene",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
         }

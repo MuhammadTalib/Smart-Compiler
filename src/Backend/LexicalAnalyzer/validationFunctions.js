@@ -33,8 +33,9 @@ export const isIdentifier = (word) => {
     var a = /^([A-Z]|[a-z])\w*$/.test(word)
     return a
 }
-export const isStringContant = (word) => {
-
+export const isStringConstant = (word) => {
+    var a=/^"(.*)"$/.test(word) || /^'(.*)'$/.test(word)
+    return a
 }
 export const isIntConstant = (word) => {
     var a = /^[+|-]\d$/.test(word)
@@ -49,4 +50,7 @@ export const CharConstant = (word) => {
 }
 export const isAlphabet=(l)=>{
     return ((l>='a'&&l<='z')||(l>='A'&&l<='Z'))
+}
+export const isNumber=(l)=>{
+    return (l>="0"&&l<="9")
 }

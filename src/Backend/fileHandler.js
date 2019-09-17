@@ -1,7 +1,6 @@
 import { saveAs as saveas } from 'file-saver';
 import { store } from './../Redux/store';
 import { add_new_file } from './../Redux/File/action';
-import { isPunctuator } from './LexicalAnalyzer/validationFunctions';
 
 //const fs = require('fs')
 
@@ -28,20 +27,7 @@ export const NewFile = () => {
 
 export const OpenFile = () => {
     console.log("Opeen File");
-    console.log("rrrrr", isPunctuator("{"))
-    // Requiring fs module in which 
-    // readFile function is defined. 
-    //const fs = require('fs')
-
-    // Reading data in utf-8 format 
-    // which is a type of character set. 
-    // Instead of 'utf-8' it can be  
-    // other character set also like 'ascii' 
-    // fs.readFile('input.txt', 'utf-8', (err, data) => {
-    //   if (err) throw err;
-
-    // Converting Raw Buffer to text 
-    // data using tostring function. 
-    //    console.log("data", data);
+   
+    // Alqama put your codde here
 
 }

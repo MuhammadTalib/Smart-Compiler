@@ -6,17 +6,10 @@ export const Regex = (regex) => {
     console.log(/^[+|-]\d$/.test(regex)); //int
     console.log(/^([+|-]?\d+)?.\d*$/.test(regex)); //float
 
-    var charA ="\\'[\\\\][nortb]\\'";
-    var charB="\\'[\\\\][\\'\\\"\\\\]\\'";
-    var charC="\\'[!@#$%^&*()_=+-|:;,.?}~`{]\\'";
-    var charConst=charC+"|"+charA+"+|"+charB+"|"+charA;
-
-    console.log("regex",charC+"|"+charA+"+|"+charB+"|"+charA.test(regex));
-
+   // console.log("string",/^\"(.*)\"$/.test(regex));
+    console.log("string",/^'(.*)'$/.test(regex));
     console.log(/^[^\\|\\]$/.test(regex)); //float
     //console.log(B.test(regex));
-
-
 
 
 }
