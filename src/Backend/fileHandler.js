@@ -42,10 +42,10 @@ export const saveTokenSetAs = (token) => {
 
 //var text =JSON.stringify(token.map(t=>JSON.stringify(t)))
 
-    console.log("token",text)
+   // console.log("token",text)
     var filename = "tokenSetOf"+file.title
     while (true) {
-        console.log("filename", filename)
+       // console.log("filename", filename)
         if (file) {
             var blob = new Blob([text],
                 { type: "text/plain;charset=utf-8" });

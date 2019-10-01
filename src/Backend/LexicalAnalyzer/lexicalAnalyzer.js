@@ -10,7 +10,7 @@ export const lexicalAnalyzer = (text) => {
 
     for (i = 0; i < text.length;) { 
         temp = wordBreaker(text, i,linenum)
-        console.log("temp",temp)
+        //console.log("temp",temp)
         if(temp!==undefined){
             i = temp.index
             linenum=temp.lineNum
@@ -41,16 +41,16 @@ export const lexicalAnalyzer = (text) => {
             }
             else if(isIntConstant(temp.word)){
                 console.log("int ")
-                tokenSet.push({CP:"CONST",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
+                tokenSet.push({CP:"INT_CONST",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
             }
             else if(isStringConstant(temp.word)){
                 console.log("string ")
                 var t=temp.word.replace('"','').replace('"','').replace("'",'').replace("'",'')
-                tokenSet.push({CP:"CONST",VP:t,line:temp.lineNum,index:temp.index-temp.word.length+1})
+                tokenSet.push({CP:"STRING_CONST",VP:t,line:temp.lineNum,index:temp.index-temp.word.length+1})
             }
             else if(isFloatConstant(temp.word)){
                 console.log("float")
-                tokenSet.push({CP:"CONST",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
+                tokenSet.push({CP:"FLOAT_CONST",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
             }   
             else{
                 tokenSet.push({CP:"Invalid Lexene",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
@@ -59,8 +59,6 @@ export const lexicalAnalyzer = (text) => {
             i++
         }
     }
-
-    console.log("tokens",tokenSet)
     saveTokenSetAs(tokenSet)
 
 
