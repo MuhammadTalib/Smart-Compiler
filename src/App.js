@@ -2,7 +2,6 @@ import React from 'react';
 import './App.css';
 import Editor from './Components/Editor/Editor';
 import MenuBar from "./Components/MenuBar/Menubar"
-import { Regex } from './Backend/LexicalAnalyzer/regex';
 
 class App extends React.Component {
   constructor(props) {
@@ -41,6 +40,7 @@ class App extends React.Component {
          })}
        </div>*/
       <React.Fragment>
+        
         <MenuBar />
         <Editor />
       </React.Fragment>

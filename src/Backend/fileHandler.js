@@ -27,7 +27,32 @@ export const NewFile = () => {
 
 export const OpenFile = () => {
     console.log("Opeen File");
-   
-    // Alqama put your codde here
+    document.getElementById("imageFile").click()
+}
 
+export const saveTokenSetAs = (token) => {
+    var file = store.getState().files.selectedFile
+    var i,text=""
+    for(i in token){
+        console.log(i,token[i])
+        var a="(CP:"+token[i].CP+" ,VP:"+token[i].VP+" ,LineNumber:"+token[i].line+" ,Index:"+token[i].index+" )\n"
+        text=text+a
+    }
+
+
+//var text =JSON.stringify(token.map(t=>JSON.stringify(t)))
+
+    console.log("token",text)
+    var filename = "tokenSetOf"+file.title
+    while (true) {
+        console.log("filename", filename)
+        if (file) {
+            var blob = new Blob([text],
+                { type: "text/plain;charset=utf-8" });
+            saveas(blob, filename);
+            break;
+        } else {
+            console.log("undefined")
+        }
+    }
 }

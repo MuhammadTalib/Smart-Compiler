@@ -1,31 +1,8 @@
-import { ADD_NEW_FILE, OPEN_SELECTED_FILE, EDIT_FILE } from './action';
+import { ADD_NEW_FILE, OPEN_SELECTED_FILE, EDIT_FILE, OPEN_NEW_FILE } from './action';
 
 const initialState = {
     files: [
-        // {
-        //     title: "Untitled",
-        //     text: "1234567899iuhgvf",
-        //     type: ".txt",
-        //     selected: ""
-        // },
-        // {
-        //     title: "Untitled",
-        //     text: "#include <stdio.h>\nint main(){\n 1}",
-        //     type: ".txt",
-        //     selected: ""
-        // },
-        // {
-        //     title: "Untitled",
-        //     text: "#include <stdio.h>\nint main(){\n 2}",
-        //     type: ".txt",
-        //     selected: ""
-        // },
-        // {
-        //     title: "Untitled",
-        //     text: "#include <stdio.h>\nint main(){\n 3}",
-        //     type: ".txt",
-        //     selected: ""
-        // }
+       
     ],
     selectedFile: {
         selected: ""
@@ -71,6 +48,23 @@ export const Files_Reducer = (state = initialState, action) => {
                 files: fileArr,
                 selectedFile: selected
 
+            }
+        }
+        case OPEN_NEW_FILE:{
+            var openFile = {
+                title: action.openedFile.fileName ,
+                text: action.openedFile.text,
+                type: "",
+                selected: "selected"
+            }
+            fileArr=[...state.files]
+            fileArr.map(f => f.selected = "")
+            fileArr.push(openFile)
+            
+            return{
+                ...state,
+                files: fileArr,
+                selectedFile: openFile
             }
         }
         default: return state
