@@ -39,7 +39,6 @@ class Editor extends Component {
         return (<div className="mainwrapper">
             <FileTab />
             <div className="numberColumn" align="right">{rows}</div>
-
             <TextareaAutosize
                 onClick={(event) => this.onLineChanged(event)}
                 onKeyPress={(event) => this.onLineChanged(event)}
@@ -51,8 +50,6 @@ class Editor extends Component {
 
                 }}
                 value={this.props.selectedFile.text} />
-            <Error />
-
 
         </div>);
     }

@@ -4,11 +4,11 @@ export const keywords = [
     { word: "string", class: "DT" },
     { word: "short", class: "DT" },
     { word: "long", class: "DT" },
-    { word: "char", class: "DT" },
     { word: "double", class: "DT" },
     { word: "const", class: "DT" },
-    { word: "string", class: "DT" },
+    { word: "var", class: "DT" },
     { word: "bool", class: "DT" },
+
 
     { word: "while", class: "while" },
     { word: "do", class: "do" },
@@ -33,5 +33,4 @@ export const keywords = [
     { word: "Array2D", class: "Array2D" },
     { word: "main", class: "main" },
     { word: "print", class: "print" }
-
 ]

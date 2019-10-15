@@ -2,8 +2,6 @@ import { saveAs as saveas } from 'file-saver';
 import { store } from './../Redux/store';
 import { add_new_file } from './../Redux/File/action';
 
-//const fs = require('fs')
-
 export const saveAs = () => {
     var file = store.getState().files.selectedFile
     var text = file.text
@@ -20,13 +18,10 @@ export const saveAs = () => {
         }
     }
 }
-
 export const NewFile = () => {
     store.dispatch(add_new_file())
 }
-
 export const OpenFile = () => {
-    console.log("Opeen File");
     document.getElementById("imageFile").click()
 }
 

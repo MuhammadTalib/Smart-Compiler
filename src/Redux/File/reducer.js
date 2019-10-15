@@ -11,6 +11,7 @@ const initialState = {
 export const Files_Reducer = (state = initialState, action) => {
     switch (action.type) {
         case ADD_NEW_FILE: {
+            console.log("ADD NEW FILE")
             var newFile = {
                 title: "untitled",
                 text: "#include <stdio.h>\nint main(){\n \n}",
@@ -41,7 +42,7 @@ export const Files_Reducer = (state = initialState, action) => {
         }
         case EDIT_FILE: {
             fileArr = [...state.files]
-            fileArr.map(f => f.text = f === action.selectedFile ? action.text : f.text)
+            fileArr.map(f => f.text = f === state.selectedFile ? action.text : f.text)
             selected = { ...state.selectedFile, text: action.text }
             return {
                 ...state,
@@ -51,6 +52,7 @@ export const Files_Reducer = (state = initialState, action) => {
             }
         }
         case OPEN_NEW_FILE:{
+            console.log("aaaa")
             var openFile = {
                 title: action.openedFile.fileName ,
                 text: action.openedFile.text,

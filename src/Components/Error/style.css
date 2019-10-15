@@ -1,6 +1,8 @@
 .errorwrapper{
-    position: relative;
-    width: 100.4%;
+    position: absolute;
+    left:100%;
+    transform: translateX(-100%);
+    width: 80%;
     margin-top: -5px;
     height: 164px !important;
     background-color: #012c5e;

@@ -25,11 +25,9 @@ const MenuButton = (props) => {
     const handleClick = () => {
         setOpen(prev => !prev);
     };
-
     const handleClickAway = () => {
         setOpen(false);
     };
-
     return (
         <div className={classes.root + " menubuttonwrapper"} style={{ marginLeft: props.margin + "px" }}>
             <ClickAwayListener onClickAway={handleClickAway}>

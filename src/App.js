@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import Editor from './Components/Editor/Editor';
 import MenuBar from "./Components/MenuBar/Menubar"
+import Error from "./Components/Error/Error"
 
 class App extends React.Component {
   constructor(props) {
@@ -34,16 +35,11 @@ class App extends React.Component {
 
   render() {
     return (
-      /* <div>
-         {this.state.text.split("\n").map((item, key) => {
-           return <span key={key}>{item}<br /></span>;
-         })}
-       </div>*/
-      <React.Fragment>
-        
+      <div>
         <MenuBar />
         <Editor />
-      </React.Fragment>
+        <Error />
+      </div>
     );
   }
 }

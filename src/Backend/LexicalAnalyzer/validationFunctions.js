@@ -6,7 +6,7 @@ export const isKeyWord = (word) => {
     var i
     for (i in keywords) {
         if (keywords[i].word === word) {
-            return true
+            return {word:word,class:keywords[i].class}
         }
     }
     return false

@@ -6,6 +6,17 @@ import { buttonData, run } from "./buttonData"
 import {open_new_file} from "./../../Redux/File/action"
 class MenuBar extends Component {
     state = {}
+    onfileInput=()=>{
+        var input=document.getElementById("imageFile");
+        var text
+        var reader = new FileReader();
+        var openNewFile=this.props.openNewFile
+        reader.addEventListener('load',function(event) {
+            text=event.target.result
+            openNewFile({fileName:input.files[0].name,text:text})
+        });
+        if(input.files[0]!==undefined) reader.readAsText(input.files[0]);
+    }
     render() {
         return (
             <div className="menubar">
@@ -13,33 +24,22 @@ class MenuBar extends Component {
                     type="file" 
                     id="imageFile" 
                     accept="*" 
-                    onChange={()=>{
-                        var input=document.getElementById("imageFile");
-                        var text
-                        var reader = new FileReader();
-                        var openNewFile=this.props.openNewFile
-                        reader.addEventListener('load',function(event) {
-                            text=event.target.result
-                            openNewFile({fileName:input.files[0].name,text:text})
-                        });
-                        if(input.files[0]!==undefined) reader.readAsText(input.files[0]);
-                    }}
-                    onLoadedData={(event)=>{console.log("loaded data",event.target.value)}}
+                    onChange={this.onfileInput}
                     style={{display:"none"}}>
-
-                    </input>
-                    {buttonData.map((btn, index) =>
-                        <MenuButton
-                            key={btn.title}
-                            title={btn.title}
-                            clickHandler={btn.clickHandler}
-                            margin={(index * 110) + 10}
-                            dropDowns={btn.dropDowns}
-                        />
-                    )}
-                    <button onClick={() => {
-                        run()
-                    }}>Run</button>
+                </input>
+                {buttonData.map((btn, index) =>
+                    <MenuButton
+                        key={btn.title}
+                        title={btn.title}
+                        clickHandler={btn.clickHandler}
+                        margin={(index * 110) + 10}
+                        dropDowns={btn.dropDowns}
+                    />
+                )}
+               
+                <button className="runbtn" onClick={() => {
+                    run()
+                }}>Run</button>
             </div>
         );
     }
