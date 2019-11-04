@@ -1,6 +1,6 @@
 
 import { find, Start1, DEFS1, DEFS3, DEFS2, MST1, MST2, CLASS_MST1,
-    PROTECTED_PRO1, DP11, SST11, SSTNEXT1, ELSE1, FOR_PARAM_21, FirstOfEXP, 
+    DP11, SST11, SSTNEXT1, ELSE1, FOR_PARAM_21, FirstOfEXP, 
     FirstOfINIT_VALUE_2, NextConstDT1, GT_INIT1, GT_INIT2, CALLING_PARAMS1,
     DEC11, E1, EXP11, E_DASH1, T_DASH1, S_DASH1, R_DASH1, Q_DASH1, CONST, 
     N_INIT_VALUE1, ARRAY1, ARRAY_VALUES1, FirstOfMOV, FirstOfMergedInit, 
@@ -142,6 +142,7 @@ function WHILE(){
             if(EXP()){
                if(t[i].CP===")"){
                    i++
+                   console.log("while before body",t[i].CP)
                    if(BODY()){
                        return true
                    }
@@ -801,6 +802,7 @@ function CLASS_BODY(){
     return true
 }
 function CLASS_MST() {
+    console.log("aaaa",t[i].CP,i)
     if(find(CLASS_MST1,t[i].CP)){
         if(CLASS_ST()){
             if(CLASS_MST()){
@@ -832,9 +834,11 @@ function CLASS_ST(){
     return true
 }
 function CLASS_FUNC(){
-    if(t[i]==="ID"){
+    console.log("in class func ",t[i].CP,i)
+    if(t[i].CP==="ID"){
         i++
         if(FUNC_DEF()){
+            console.log("in func def")
             return true
         }
     }
@@ -929,31 +933,37 @@ function PROTECTED(){
         i++
         if(t[i].CP===":"){
             i++
-            if(PROTECTED_OPTIONS()){
+            if(PRO_NEXT()){
                 return true
             }
         }
     }
-    return true
+    return false
 }
-function PROTECTED_OPTIONS() {
-    // if(t[i].CP==="{"){
-    //     i++
-    //     if(PRO_BODY()){
-    //         if(t[i].CP==="}"){
-    //             i++
-    //             return true
-    //         }
-    //     }
-    // }else if(find(PROTECTED_PRO1,t[i].CP)){
-
-    // }
-    // return false
+function PRO_NEXT(){
+    if(t[i].CP==="ID" || t[i].CP==="DT"){
+        if(CLASS_ST()){
+            return true
+        }
+    }
+    else if(t[i].CP==="{"){
+        i++
+        if(PRO_BODY()){
+            if(t[i].CP==="}"){
+                i++
+                return true
+            }
+        }
+    }
+    return false
 }
-
-
-
-
+function PRO_BODY(){
+    if(find(CLASS_MST1,t[i].CP)){
+        if(CLASS_MST()){
+            return true
+        }
+    }
+}
 function DEC(){
     if(t[i].CP==="DT"){
         i++
@@ -1038,7 +1048,7 @@ function MOV(){
         if(t[i].CP==="ID"){
             i++
             console.log("MOV ID paassees")
-            if(MERGED()){
+            if(MERGED1()){
                 return true
             }
         }
@@ -1058,6 +1068,22 @@ function MOV(){
 }
 function MERGED(){
     console.log("IN MERGED")
+    if(find(EXP11,t[i].CP)){
+        if(EXP1()){
+            return true
+        }
+    }
+    else if(find(FirstOfMergedInit,t[i].CP)){
+        if(MERGED_INIT()){
+            if(DEC1()){
+                return true
+            }
+        }
+    }
+    return false
+}
+function MERGED1(){
+    console.log("IN MERGED1")
     if(find(EXP11,t[i].CP)){
         if(EXP1()){
             return true

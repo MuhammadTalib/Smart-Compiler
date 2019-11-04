@@ -15,7 +15,7 @@ export const PROTECTED_PRO1=["ID","DT","protected"]
 export const DP11=["DT","ID",")",","]
 
 export const SST11=["DT","while","for","do","const","ID","inc_dec","if","switch","return","$"]
-export const SSTNEXT1=["DT","}","while","for","do","const","ID","inc_dec","if","switch","return","$"]
+export const SSTNEXT1=["DT","}","while","for","do","const","ID","inc_dec","if","switch","return","$","class"]
 
 export const ELSE1=[";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$","}"]
 
