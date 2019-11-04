@@ -1,28 +1,30 @@
 export const operators = [
-    { operator: "=", class: "AOP" },   //AOP=Assignment Operator
+    { operator: "=", class: "AOR" },   //AOP=Assignment Operator
     { operator: "+=", class: "AOP" },
     { operator: "-=", class: "AOP" },
     { operator: "*=", class: "AOP" },
     { operator: "/=", class: "AOP" },
     { operator: "%=", class: "AOP" },
-    { operator: "+", class: "ASOP" },  //ADD Operator
-    { operator: "-", class: "ASOP" },
-    { operator: "*", class: "AOP" }, //MOP
-    { operator: "/", class: "DOP" }, //Divide Operator
-    { operator: "%", class: "POP" }, //Percent Operator
+    { operator: "+", class: "PM" },  //ADD Operator
+    { operator: "-", class: "PM" },
+    { operator: "*", class: "MDM" }, //MOP
+    { operator: "/", class: "MDM" }, //Divide Operator
+    { operator: "%", class: "MDM" }, //Percent Operator
     { operator: "<", class: "ROP" }, //Relational Operator
     { operator: ">", class: "ROP" },
     { operator: ">=", class: "ROP" },
     { operator: "<=", class: "ROP" },
     { operator: "!=", class: "ROP" },
     { operator: "==", class: "ROP" },
+    { operator: "=>", class: "FUNC_ARROW" },
 
-    { operator: "&&", class: "LAND" }, //Logical And
-    { operator: "||", class: "LOR" },
 
-    { operator: "&", class: "BAND" }, //Binary And
-    { operator: "|", class: "BOR" },
-    { operator: "!", class: "BNOT" },
+    { operator: "&&", class: "&&" }, //Logical And
+    { operator: "||", class: "||" },
+
+    { operator: "&", class: "&" }, //Binary And
+    { operator: "|", class: "|" },
+    { operator: "!", class: "!" },
 
 
     { operator: "++", class: "inc_dec" }, //increment decrement

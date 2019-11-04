@@ -1,6 +1,7 @@
 import { saveAs as saveas } from 'file-saver';
 import { store } from './../Redux/store';
 import { add_new_file } from './../Redux/File/action';
+import { SyntaxAnalyzer } from './SyntaxAnalyzer/SyntaxAnalyzer';
 
 export const saveAs = () => {
     var file = store.getState().files.selectedFile
@@ -28,10 +29,15 @@ export const OpenFile = () => {
 export const saveTokenSetAs = (token) => {
     var file = store.getState().files.selectedFile
     var i,text=""
+    
+    token.push({CP: "$", VP: "$", line: 0, index: 7})
     for(i in token){
         console.log(i,token[i])
         var a="(CP:"+token[i].CP+" ,VP:"+token[i].VP+" ,LineNumber:"+token[i].line+" ,Index:"+token[i].index+" )\n"
         text=text+a
+    }
+    if(SyntaxAnalyzer(token)){
+        console.log("Valid Syntax")
     }
 
 

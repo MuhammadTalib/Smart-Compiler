@@ -54,3 +54,8 @@ export const isAlphabet=(l)=>{
 export const isNumber=(l)=>{
     return (l>="0"&&l<="9")
 }
+export const isConst=(c)=>{
+    if(c==="INT_CONST" || c==="STRING_CONST" || c==="FLOAT_CONST"){
+        return true
+    }
+}

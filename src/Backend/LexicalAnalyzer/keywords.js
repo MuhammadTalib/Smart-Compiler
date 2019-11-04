@@ -5,7 +5,7 @@ export const keywords = [
     { word: "short", class: "DT" },
     { word: "long", class: "DT" },
     { word: "double", class: "DT" },
-    { word: "const", class: "DT" },
+    { word: "const", class: "const" },
     { word: "var", class: "DT" },
     { word: "bool", class: "DT" },
 
@@ -31,6 +31,5 @@ export const keywords = [
     { word: "function", class: "function" },
     { word: "Array", class: "Array" },
     { word: "Array2D", class: "Array2D" },
-    { word: "main", class: "main" },
     { word: "print", class: "print" }
 ]

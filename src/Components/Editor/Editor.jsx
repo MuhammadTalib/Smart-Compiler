@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import "./style.css"
 import TextareaAutosize from '@material-ui/core/TextareaAutosize';
-import Error from './../Error/Error';
+
 import { connect } from "react-redux"
 import FileTab from "./../FileTab/FileTab";
 import { edit_file } from './../../Redux/File/action';

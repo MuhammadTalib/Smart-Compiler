@@ -4,7 +4,7 @@ export const wordBreaker = (text, index,lineNum) => {
     var word = "",num="",str="",strstart=0,str2="",str2start=0,error=""
     var i
     for (i = index; i < text.length; i++) {
-    
+        //console.log("text[i]",text[i])
         if(text[i] === "\n") {
             if (word.length>0) return { index: i, word,lineNum }
             if (num.length>0) return { index: i, word:num,lineNum }
@@ -46,7 +46,9 @@ export const wordBreaker = (text, index,lineNum) => {
             }
             str2=str2+text[i]
         }
-        else if(text[i]==="/" && text[i]==="/" ){
+        else if(text[i]==="/" && text[i+1]==="/" ){
+           // console.log("commenting")
+            i++
             while(text[i+1]!=="\n"){
                 i++
             }

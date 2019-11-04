@@ -7,8 +7,9 @@ export const lexicalAnalyzer = (text) => {
     console.log("lexical analyzer starts...")
     
     var i, temp,linenum=0,tokenSet=[]
-    for (i = 0; i < text.length;) { 
+    if(text) for (i = 0; i < text.length;) { 
         temp = wordBreaker(text, i,linenum)
+        //console.log("temp",temp)
         if(temp!==undefined){
             i = temp.index
             linenum=temp.lineNum
