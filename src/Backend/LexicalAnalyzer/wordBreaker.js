@@ -74,6 +74,15 @@ export const wordBreaker = (text, index,lineNum) => {
                 if (str2.length>0) return { index: i, word:str2,lineNum }
                 if (error.length>0) return { index: i, word:error,lineNum }
     
+                if(text[i]==="=" && text[i+1]===">"){
+                    if (num.length>0) return { index: i, word:num,lineNum }
+    
+                    word = word + text[i]
+                    word = word + text[i+1]
+                    i++
+                    console.log("returning",word)
+                    return { index: i+1, word,lineNum}
+                }
                 if (text[i + 1] === text[i]) {
                     if (num.length>0) return { index: i, word:num,lineNum }
     

@@ -1,4 +1,3 @@
-
 import { find, Start1, DEFS1, DEFS3, DEFS2, MST1, MST2, CLASS_MST1,
     DP11, SST11, SSTNEXT1, ELSE1, FOR_PARAM_21, FirstOfEXP, 
     FirstOfINIT_VALUE_2, NextConstDT1, GT_INIT1, GT_INIT2, CALLING_PARAMS1,
@@ -20,7 +19,8 @@ export const SyntaxAnalyzer=(token)=>{
         }
     }
     else {
-        console.log("WRONG SYNTAX!")
+        console.log("token",t[i])
+        console.log("INVALID SYNTAX at line "+t[i].line+":"+t[i].index)
     }
     return false
 }
@@ -52,7 +52,6 @@ function DEFS(){
     }
     else if(find(DEFS3,t[i].CP)){
         if(FUNCTION_DEC()){
-            console.log("func def trues")
             if(DEFS()){
                 return true
             }
@@ -62,9 +61,7 @@ function DEFS(){
 }
 function MST() {
     if(find(MST1,t[i].CP)){
-        console.log("status",t[i].CP,i,"mst1")
         if(SST()){
-            console.log("status",t[i].CP,i,"sst true in MST")
             if(MST()){
                 return true
             }
@@ -77,9 +74,7 @@ function MST() {
 }
 function SST(){
     if(SST1()){
-        console.log("status",i,t[i].CP,"sst11 true")
         if(SSTNEXT()){
-            console.log("sst next    aaaa true")
             return true
         }
     }
@@ -87,9 +82,7 @@ function SST(){
 }
 function SST1(){
     if(find(SST11,t[i].CP)){
-        console.log("status",i,t[i].CP,"sst11")
         if(DEC()){
-            console.log("dec true")
             return true
         }
         else if(WHILE()){
@@ -111,7 +104,6 @@ function SST1(){
             return true
         }
         else if(IF_ELSE()){
-            console.log("if else true")
             return true
         }
         else if(SWITCH_CASE()){
@@ -124,12 +116,10 @@ function SST1(){
     return false
 }
 function SSTNEXT(){
-    console.log("status",t[i].CP,i,"in sst next")
     if(t[i].CP===","){
         return true
     }
     else if(find(SSTNEXT1, t[i].CP)){
-        console.log("sstnext1 true")
         return true
     }
     return false;
@@ -142,7 +132,6 @@ function WHILE(){
             if(EXP()){
                if(t[i].CP===")"){
                    i++
-                   console.log("while before body",t[i].CP)
                    if(BODY()){
                        return true
                    }
@@ -329,8 +318,31 @@ function CONST_DT2(){
             }
         }
     }
+    
+    else if(t[i].CP==="("){
+        console.log("STatus",t[i].CP,t[i].CP,"here")
+        i++
+        if(DEC_PARAMS()){
+            if(t[i].CP===")"){
+                i++
+                if(t[i].CP==="FUNC_ARROW"){
+                    i++
+                    console.log("STatus",t[i].CP,t[i].CP)
+                    if(t[i].CP==="{"){
+                        i++
+                        if(MST()){
+                            if(t[i].CP==="}"){
+                                i++
+                                return true
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
     else if(find(FirstOfINIT_VALUE_2,t[i].CP)){
-        console.log("hereeee")
         if(INIT_VALUE_2()){
             return true
         }
@@ -354,26 +366,6 @@ function CONST_DT2(){
                 }
             }
             return true
-        }
-    }
-    else if(t[i].CP==="("){
-        i++
-        if(DEC_PARAMS()){
-            if(t[i].CP===")"){
-                i++
-                if(t[i].CP==="FUNC_ARROW"){
-                    i++
-                    if(t[i].CP==="{"){
-                        i++
-                        if(MST()){
-                            if(t[i].CP==="}"){
-                                return true
-                            }
-                        }
-                    }
-
-                }
-            }
         }
     }
     return false
@@ -424,6 +416,7 @@ function NEXT_GTSWID(){
 }
 function GTSDEC(){
     if(find(DEC21,t[i].CP)){
+        console.log("going in dEC2")
         if(DEC2()){
             return true
         }
@@ -558,13 +551,10 @@ function IF_ELSE(){
         if(t[i].CP==="("){
             i++
             if(EXP()){
-                console.log("status",t[i].CP,i,"exp true in if")
                 if(t[i].CP===")"){
                     i++
                     if(BODY()){
-                        console.log("status",t[i].CP,i,"Body true")
                         if(ELSE()){
-                            console.log("status",t[i].CP,i,"else true")
                             return true
                         }
                     }
@@ -576,13 +566,11 @@ function IF_ELSE(){
 function ELSE(){
     if(t[i].CP==="else"){
         i++
-        console.log("else 2",t[i].CP,i,"Body true else ")
         if(BODY()){
             return true
         }
     }
     else if(find(ELSE1,t[i].CP)){
-        console.log("else 2",t[i].CP,i,"Body true")
         return true
     }
     return false
@@ -725,18 +713,15 @@ function RETURN(){
     return false
 }
 function FUNCTION_DEC(){
-    console.log("status",i,t[i].CP,"in func dec")
     if(t[i].CP==="function"){
         i++
         if(FUNC_DEF_1()){
-            console.log("status",i,t[i].CP,"func def 1 true")
             return true
         }
     }
     return false
 }
 function FUNC_DEF_1(){
-    console.log("status",i,t[i].CP,"in func def 1")
     if(t[i].CP==="ID"){
         i++
         if(t[i].CP==="("){
@@ -747,7 +732,6 @@ function FUNC_DEF_1(){
                     if(t[i].CP==="{"){
                         i++
                         if(MST()){
-                            console.log("status",i,t[i].CP,"func def mst true")
                             if(t[i].CP==="}"){
                                 i++
                                 return true
@@ -802,7 +786,6 @@ function CLASS_BODY(){
     return true
 }
 function CLASS_MST() {
-    console.log("aaaa",t[i].CP,i)
     if(find(CLASS_MST1,t[i].CP)){
         if(CLASS_ST()){
             if(CLASS_MST()){
@@ -834,11 +817,9 @@ function CLASS_ST(){
     return true
 }
 function CLASS_FUNC(){
-    console.log("in class func ",t[i].CP,i)
     if(t[i].CP==="ID"){
         i++
         if(FUNC_DEF()){
-            console.log("in func def")
             return true
         }
     }
@@ -889,14 +870,12 @@ function FUNC_DEF(){
 }
 function DEC_PARAMS(){
     if(t[i].CP==="DT"){
-        console.log("status",t[i].CP,i,"dt")
         if(DEC()){
             return true
         }
     }
     else if(t[i].CP==="ID"){
         i++
-        console.log("status",t[i].CP,i,"id")
         if(DP1()){
             if(NEXT_DEC_PARAM()){
                 return true
@@ -919,7 +898,6 @@ function DP1(){
 function NEXT_DEC_PARAM(){
     if(t[i].CP===","){
         i++
-        console.log("status",t[i].CP,i,"nextdec")
         if(DEC_PARAMS()){
             return true
         }
@@ -969,11 +947,8 @@ function DEC(){
         i++
         if(t[i].CP==="ID"){
             i++
-            console.log("status",t[i].CP,i)
             if(DEC1()){
-                console.log("status",t[i].CP,i,"dec 1 true")
                 if(NEXT_DEC()){
-                    console.log("status",t[i].CP,i,"next dec true")
                     return true
                 }
             }
@@ -982,13 +957,11 @@ function DEC(){
     return false
 }
 function DEC1(){
-    console.log("status",t[i].CP,i,"in dec 1")
     if(find(DEC11,t[i].CP) ){
         return true
     }
     else if(t[i].CP==="AOR"){
         i++
-        console.log("status",t[i].CP,i,"after AOR")
         if(DEC2()){
             return true
         }
@@ -996,10 +969,8 @@ function DEC1(){
     return false
 }
 function DEC2() {
-    console.log("status",t[i].CP,i,"in DEC2 ")
     if(t[i].CP==="ID"){
         i++
-        console.log("status",t[i].CP,i,"after DEC2")
         if(DEC3()){
             return true
         }
@@ -1031,10 +1002,8 @@ function MERGED_INIT(){
     else if(t[i].CP==="["){
         i++
         if(EXP()){
-            console.log("exp true")
             if(t[i].CP==="]"){
                 i++
-                console.log("status",t[i].CP,i,"]]")
                 if(M_N_ARR()){
                     return true
                 }
@@ -1047,7 +1016,6 @@ function MOV(){
         i++
         if(t[i].CP==="ID"){
             i++
-            console.log("MOV ID paassees")
             if(MERGED1()){
                 return true
             }
@@ -1067,7 +1035,6 @@ function MOV(){
     return false
 }
 function MERGED(){
-    console.log("IN MERGED")
     if(find(EXP11,t[i].CP)){
         if(EXP1()){
             return true
@@ -1083,7 +1050,6 @@ function MERGED(){
     return false
 }
 function MERGED1(){
-    console.log("IN MERGED1")
     if(find(EXP11,t[i].CP)){
         if(EXP1()){
             return true
@@ -1110,7 +1076,6 @@ function M_N_ARR(){
         }
     }
     else if(t[i].CP==="["){
-        console.log("status",t[i].CP,"hereeee")
         i++
         if(EXP()){
             if(t[i].CP==="]"){
@@ -1156,7 +1121,6 @@ function NEXT_DEC(){
         return true
     }
     else if(t[i].CP==="$"){
-        console.log("status",t[i].CP,i,"truee")
         return true
     }
     return false
@@ -1164,7 +1128,6 @@ function NEXT_DEC(){
 function EXP(){
     if(t[i].CP==="ID"){
         i++
-        console.log("ID Passed in EXP")
         if(NEW_ASGN()){
             if(EXP1()){
                 return true
@@ -1172,10 +1135,7 @@ function EXP(){
         }
     }
     else if(find(E1, t[i].CP)){
-        console.log("2nd EXP")
         if(E()){
-            console.log("E()")
-            console.log("E true")
             if(EXP1()){
                 return true
             }
@@ -1184,11 +1144,8 @@ function EXP(){
     return false
 }
 function EXP1(){
-    console.log("status",t[i].CP,i,"in EXP")
     if(find(EXP11,t[i].CP)){
-        console.log("PM selected")
         if(T()){
-            console.log("T true")
             if(E_DASH()){
                 return true
             }
@@ -1246,9 +1203,7 @@ function S(){
 }
 function S_DASH(){
     if(t[i].CP==="ROP"){
-        console.log("ROP")
         i++
-        console.log("status",i,t[i].CP,"ROP inc")
         if(N_Q()){
             if(EXP1()){
                 return true
@@ -1273,9 +1228,7 @@ function R(){
 function R_DASH(){
     if(t[i].CP==="PM"){
         i++
-        console.log("status",i,t[i].CP)
         if(N_Q()){
-            console.log("status",i,t[i].CP,"Q SELECTED")
             if(R()){
                 return true
             }
@@ -1325,7 +1278,6 @@ function N_Q(){
 function E(){
     if(t[i].CP==="("){
         i++
-        console.log("status",i,t[i].CP,"in bracket")
         if(EXP()){
             if(t[i].CP===")"){
                 i++
@@ -1348,8 +1300,6 @@ function E(){
     }
     else if(find(CONST,t[i].CP)){
         i++
-        
-        console.log("status",i,t[i].CP,"E true")
         return true
     }
     return false
@@ -1368,7 +1318,6 @@ function NEW_ASGN(){
         return true
     }
     else if(find(N_INIT_VALUE1,t[i].CP)){
-        console.log("status",t[i].CP,i,"in NEW_ASgn")
         if(N_INIT_VALUE()){
             return true
         }
@@ -1382,7 +1331,6 @@ function N_INIT_VALUE(){
         }
     }
     else if(t[i].CP==="["){
-        console.log("status",t[i].CP,"hereeee")
         i++
         if(EXP()){
             if(t[i].CP==="]"){
@@ -1455,7 +1403,6 @@ function N_ARR_2N(){
 }
 function INIT_VALUE_2(){
     if(find(FirstOfEXP,t[i].CP)){
-        console.log("hereeeeeeeee",i,t[i].CP)
         if(EXP()){
             return true
         }
@@ -1475,9 +1422,7 @@ function INIT_VALUE_2(){
 function OBJECT(){
     if(t[i].CP==="{"){
         i++
-        console.log("status",t[i].VP,i,"OBJ")
         if(PROP()){
-            console.log("status",t[i].VP,i,"Prop passed")
             if(t[i].CP==="}"){
                 i++
                 return true
@@ -1501,7 +1446,6 @@ function OBJECT1(){
         i++
         if(t[i].CP===":"){
             i++
-            console.log("status",t[i].CP,i,"OBject1 ")
             if(EXP()){
                 return true
             }
