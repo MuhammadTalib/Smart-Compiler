@@ -384,8 +384,11 @@ function NEXT_CONST_DT(){
 function GTSWID(){
     if(t[i].CP==="ID"){
         i++
+        console.log("status",t[i].CP,i,"ID passes in GTSWID")
         if(INIT_VALUE()){
+            console.log("status",t[i].CP,i,"INIT VAUE TRUE")
             if(NEXT_GTSWID()){
+                console.log("status",t[i].CP,i,"NEXT GTSWID ")
                 return true
             }
         }
@@ -408,7 +411,9 @@ function NEXT_GTSWID(){
     }
     else if(t[i].CP==="AOR" || t[i].CP==="AOP"){
         i++
+        console.log("status",t[i].CP,i,"AOP PASSES")
         if(GTSDEC()){
+            console.log("status",t[i].CP,i,"GTSDEC PASSES")
             return true
         }
     }
@@ -416,8 +421,9 @@ function NEXT_GTSWID(){
 }
 function GTSDEC(){
     if(find(DEC21,t[i].CP)){
-        console.log("going in dEC2")
+        console.log("status",t[i].CP,i,"going in dEC2")
         if(DEC2()){
+            console.log("status",t[i].CP,i,"DEC2 passed")
             return true
         }
     }
@@ -969,8 +975,10 @@ function DEC1(){
     return false
 }
 function DEC2() {
+    console.log("status",t[i].CP,t[i].VP,i," in dEC2")
     if(t[i].CP==="ID"){
         i++
+        console.log("status",t[i].CP,t[i].VP,i,"going in dEC3")
         if(DEC3()){
             return true
         }
@@ -987,14 +995,23 @@ function DEC3(){
         return true
     }
     else if(t[i].CP==="[" || t[i].CP==="." || t[i].CP==="(" || t[i].CP==="$"){
+        console.log("status",t[i].CP,t[i].VP,i,"before Merged Init")
         if(MERGED_INIT()){
+            console.log("status",t[i].CP,t[i].VP,i,"passes Merged Init")
+            if(EXP1()){
+                return true
+            }
+        }
+    }
+    else if(find(EXP11,t[i].CP)){
+        if(EXP1()){
             return true
         }
     }
     return false
 }
 function MERGED_INIT(){
-    if(find(FirstOfMOV, t[i].CP)){
+    if(find(FirstOfMOV, t[i].CP) ){
         if(MOV()){
             return true
         }
@@ -1004,12 +1021,15 @@ function MERGED_INIT(){
         if(EXP()){
             if(t[i].CP==="]"){
                 i++
+                console.log("status",t[i].CP,t[i].VP,i," ARRAY passes")
                 if(M_N_ARR()){
+                    console.log("status",t[i].CP,t[i].VP,i,"M_N_ARR passes")
                     return true
                 }
             }
         }
     }
+    return false
 }
 function MOV(){
     if(t[i].CP==="."){
@@ -1070,6 +1090,7 @@ function MERGED1(){
     return false
 }
 function M_N_ARR(){
+    console.log("status",t[i].CP,t[i].VP,i," in M_N_ARR")
     if(find(FirstOfMOV, t[i].CP)){
         if(MOV()){
             return true
@@ -1541,6 +1562,7 @@ function NEXT_VAL(){
     }
 }
 function INIT_VALUE(){
+    console.log("status",t[i].CP,i)
     if(find(FollowOfINIT_VALUE1,t[i].CP)){
         return true
     }

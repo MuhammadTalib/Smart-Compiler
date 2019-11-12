@@ -50,7 +50,7 @@ export const N_INIT_VALUE1=["MDM","PM","||","&&","ROP","]",")",":",",",";","(","
 
 export const FirstOfMOV=[".","("]
 export const FirstOfMergedInit=[".","(","["]
-export const FollowOfMergedN_ARR=["AOR",",",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","}","$"]
+export const FollowOfMergedN_ARR=["MDM","PM","||","&&","ROP","AOR",",",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","}","$"]
 
 export const FollowOfINIT_VALUE1=["inc_dec","(","AOR","AOP"]
 export const FirstOfOTHER_VALUE=[".","("]
