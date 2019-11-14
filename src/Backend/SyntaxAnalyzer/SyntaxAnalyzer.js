@@ -891,13 +891,18 @@ function DEC_PARAMS(){
     return true
 }
 function DP1(){
-    if(find(DP11,t[i].CP)){
+    if(t[i].CP==="ID"){
+        i++ 
         return true
-    }else if(t[i].CP==="AOR" || t[i].CP==="AOP"){
+    }
+    if(t[i].CP==="AOR" || t[i].CP==="AOP"){
         i++
         if(EXP()){
             return true
         }
+    }
+    else if(find(DP11,t[i].CP)){
+        return true
     }
     return false
 }
@@ -999,6 +1004,7 @@ function DEC3(){
         if(MERGED_INIT()){
             console.log("status",t[i].CP,t[i].VP,i,"passes Merged Init")
             if(EXP1()){
+                console.log("status",t[i].CP,t[i].VP,i,"exp1 passes")
                 return true
             }
         }
@@ -1165,6 +1171,7 @@ function EXP(){
     return false
 }
 function EXP1(){
+    console.log("status",t[i].CP,"IN EXP")
     if(find(EXP11,t[i].CP)){
         if(T()){
             if(E_DASH()){
@@ -1284,6 +1291,7 @@ function Q_DASH(){
     return false
 }
 function N_Q(){ 
+    console.log("status",t[i].CP,t[i].VP,"N_Q")
     if(find(E1,t[i].CP)){
         if(E()){
             return true
@@ -1326,19 +1334,23 @@ function E(){
     return false
 }
 function F(){
+    console.log("status",t[i].CP,t[i].VP,"f")
     if(t[i].CP==="ID"){
         i++
+        console.log("status",t[i].CP,t[i].VP,"before ASGN")
         if(NEW_ASGN()){
             return true
         }
     }
 }
 function NEW_ASGN(){
+    console.log("status",t[i].CP,t[i].VP,"in asgn")
     if(t[i].CP==="inc_dec"){
         i++
         return true
     }
     else if(find(N_INIT_VALUE1,t[i].CP)){
+        console.log("status",t[i].CP,t[i].VP,"going to check N_INIT")
         if(N_INIT_VALUE()){
             return true
         }
@@ -1346,6 +1358,7 @@ function NEW_ASGN(){
     return false
 }
 function N_INIT_VALUE(){
+    console.log("status",t[i].CP,t[i].VP,"IN n_init")
     if(find(FirstOfMOV,t[i].CP)){
         if(OTHER_N_VALUE()){
             return true
@@ -1390,10 +1403,8 @@ function OTHER_N_VALUE(){
     return false
 }
 function N_ARR_N(){
-    if(find(N_INIT_VALUE1,t[i].CP)){
-        return true
-    }
-    else if(find(FirstOfMOV,t[i].CP)){
+    console.log("status",t[i].CP,t[i].VP,"N_ARR_N")
+    if(find(FirstOfMOV,t[i].CP)){
         if(OTHER_N_VALUE()){
             return true
         }
@@ -1409,16 +1420,21 @@ function N_ARR_N(){
             }
         }
     }
+    else if(find(N_INIT_VALUE1,t[i].CP)){
+        console.log("status",t[i].CP,t[i].VP,"trueee")
+        return true
+    }
+    
     return false
 }
 function N_ARR_2N(){
-    if(find(N_INIT_VALUE1,t[i].CP)){
-        return true
-    }
-    else if(find(FirstOfMOV,t[i].CP)){
+    if(find(FirstOfMOV,t[i].CP)){
         if(OTHER_N_VALUE()){
             return true
         }
+    }
+    else if(find(N_INIT_VALUE1,t[i].CP)){
+        return true
     }
     return false
 }
@@ -1525,6 +1541,8 @@ function ARRAY_INNER(){
     }
 }
 function ARRAY_VALUES(){
+    console.log("status",t[i].CP,t[i].VP,"ARRAY VALUES")
+
     if(find(ARRAY_VALUES1,t[i].CP)){
         if(ARRAY_VAL()){
             if(NEXT_VAL()){
@@ -1532,20 +1550,23 @@ function ARRAY_VALUES(){
             }
         }
     }
+    return false
 }
 function ARRAY_VAL(){
-    if(find(ARRAY_VALUES1,t[i].CP)){
-        if(INIT_VALUE_2()){
-            return true
-        }
-    }
-    else if(t[i].CP==="..."){
+    console.log("status",t[i].CP,t[i].VP,"ARRAY VAL")
+    if(t[i].CP==="..."){
         i++
         if(t[i].CP==="ID"){
             i++
+            console.log("status",t[i].CP,t[i].VP,"tbefor N_INIT")
             if(N_INIT_VALUE()){
                 return true
             }
+        }
+    }
+    else if(find(ARRAY_VALUES1,t[i].CP)){
+        if(INIT_VALUE_2()){
+            return true
         }
     }
     return false

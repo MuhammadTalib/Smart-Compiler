@@ -22,6 +22,8 @@ export const operators = [
     { operator: "&&", class: "&&" }, //Logical And
     { operator: "||", class: "||" },
 
+    { operator: "...", class: "..." },
+
     { operator: "&", class: "&" }, //Binary And
     { operator: "|", class: "|" },
     { operator: "!", class: "!" },

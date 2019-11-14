@@ -36,7 +36,7 @@ export const CALLING_PARAMS1=["ID","(","!","inc_dec","FLOAT_CONST","INT_CONST","
 
 export const DEC11=[",",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$"]
 export const DEC21=["ID","(","!","inc_dec","FLOAT_CONST","INT_CONST","STRING_CONST"]
-export const ARRAY_VALUES1=["ID","(","!","inc_dec","FLOAT_CONST","INT_CONST","STRING_CONST","{","["]
+export const ARRAY_VALUES1=["...","ID","(","!","inc_dec","FLOAT_CONST","INT_CONST","STRING_CONST","{","["]
 
 export const E1=["(","!","inc_dec","FLOAT_CONST","INT_CONST","STRING_CONST","true","false"]
 export const EXP11=["MDM","PM","ROP","||","}","&&","]",")",":",",",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$"]

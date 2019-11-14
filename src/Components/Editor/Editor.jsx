@@ -15,6 +15,7 @@ class Editor extends Component {
         text: "#include <stdio.h>\nint main(){\n}"
     }
     onLineChanged = (e) => {
+        document.getElementById("textarea")
         var key = (e.which) ? e.which : e.keyCode
         if (key === 13) {
             var lineNo = e.target.value.substr(0, e.target.selectionStart).split(/\r?\n|\r/).length;
@@ -40,16 +41,17 @@ class Editor extends Component {
             <FileTab />
             <div className="numberColumn" align="right">{rows}</div>
             <TextareaAutosize
+                id="textarea"
                 onClick={(event) => this.onLineChanged(event)}
                 onKeyPress={(event) => this.onLineChanged(event)}
                 className="texteditor"
                 rowsMax={10}
                 onChange={(e) => {
                     this.props.editFile(e.target.value)
-                    //this.setState({ text: e.target.value })
-
                 }}
-                value={this.props.selectedFile.text} />
+                value={this.props.selectedFile.text} >
+                    {this.props.selectedFile.text}
+                </TextareaAutosize>
 
         </div>);
     }

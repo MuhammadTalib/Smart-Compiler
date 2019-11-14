@@ -1,4 +1,4 @@
-import { isPunctuator,isNumber ,isOperator} from "./validationFunctions"
+import { isPunctuator,isNumber ,isOperator, isAlphabet} from "./validationFunctions"
 
 export const wordBreaker = (text, index,lineNum) => {
     var word = "",num="",str="",strstart=0,str2="",str2start=0,error=""
@@ -98,10 +98,10 @@ export const wordBreaker = (text, index,lineNum) => {
                     i++
                     return { index: i+1, word,lineNum}
                 }
-                else if(num.length===0 && text[i] === "+" && isNumber(text[i+1]) && !isNumber(text[i-1])){
+                else if(num.length===0 && text[i] === "+" && isNumber(text[i+1]) && !isNumber(text[i-1]) && !isAlphabet(text[i-1]) ){
                     num=num+text[i]
                 }
-                else if(num.length===0 && text[i] === "-" && isNumber(text[i+1]) && !isNumber(text[i-1])){
+                else if(num.length===0 && text[i] === "-" && isNumber(text[i+1]) && !isNumber(text[i-1]) && !isAlphabet(text[i-1])){
                    num=num+text[i]
                 }
                 else {
@@ -128,7 +128,7 @@ export const wordBreaker = (text, index,lineNum) => {
                 ||(text[i] >= "a" && text[i] <= "z") || text[i]==="_"
                 ||text[i]==="." ) {
             
-            if(text[i]==="." && error.length>0){
+             if(text[i]==="." && error.length>0){
                 return { index: i, word:error,lineNum }
             }
             if (error.length>0){  
@@ -151,6 +151,10 @@ export const wordBreaker = (text, index,lineNum) => {
                 }
                 else if(error.length>0){
                     return { index: i, word:error,lineNum }
+                }
+                else if(text[i]==="." && text[i+1]==="." && text[i+2]==="."){
+                    word="..."
+                    return { index: i+3, word:word,lineNum }
                 } 
                 else if(num.indexOf(".")===-1){
                     if (error.length>0){
