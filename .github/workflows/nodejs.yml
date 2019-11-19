@@ -1,10 +1,12 @@
 name: Node CI
 
-on: [push]
-
+on:
+  push:
+    branches:
+      - master
 jobs:
   build:
-runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [8.x, 10.x, 12.x]
@@ -20,11 +22,3 @@ runs-on: ubuntu-latest
       run: npm run deploy
     - name: Updating Domain
       run: echo "Update domain"
-
-
-    runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [8.x, 10.x, 12.x]
-
