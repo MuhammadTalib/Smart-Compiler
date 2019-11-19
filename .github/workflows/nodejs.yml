@@ -19,6 +19,8 @@ jobs:
     - name: Install Packages
       run: npm install
     - name: Deploy to GH Pages
-      run: npm run deploy
-    - name: Updating Domain
-      run: echo "Update domain"
+      run: |
+        git config --global user.email "talibwaseem135@gmail.com"
+        git config --global user.name "MuhammadTalib"
+        git remote set-url origin https://github.com/MuhammadTalib/Smart-Compiler.git
+        npm run deploy
