@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "495ff42d4869da4c78c281f839a873ca",
+    "revision": "0832db745d3758511feea7c5a19a8a56",
     "url": "/MuhammadTalib/Smart-Compiler/index.html"
   },
   {
-    "revision": "a599abda885a21a39524",
+    "revision": "bd358fea048a5e46730b",
     "url": "/MuhammadTalib/Smart-Compiler/static/css/main.8b31ec02.chunk.css"
   },
   {
@@ -12,8 +12,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/MuhammadTalib/Smart-Compiler/static/js/2.ce2f160f.chunk.js"
   },
   {
-    "revision": "a599abda885a21a39524",
-    "url": "/MuhammadTalib/Smart-Compiler/static/js/main.481efca5.chunk.js"
+    "revision": "bd358fea048a5e46730b",
+    "url": "/MuhammadTalib/Smart-Compiler/static/js/main.93b6e01e.chunk.js"
   },
   {
     "revision": "eb23b1beb9501729f082",

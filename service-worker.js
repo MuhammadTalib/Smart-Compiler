@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/MuhammadTalib/Smart-Compiler/precache-manifest.aa3b2071575288bd40b6027876aed46f.js"
+  "/MuhammadTalib/Smart-Compiler/precache-manifest.2ce3a9cc9f4e241bdf38e5d7981efaa3.js"
 );
 
 self.addEventListener('message', (event) => {
