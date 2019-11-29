@@ -6,9 +6,15 @@ import { find, Start1, DEFS1, DEFS3, DEFS2, MST1, MST2, CLASS_MST1,
     FollowOfMergedN_ARR, FollowOfINIT_VALUE1, FirstOfOTHER_VALUE, DEC21 } from "./SelectionSets"
 
 
-var i,t
+var i,t,syntax=true,inFuncP=false
 
+function syntaxFalse(){
+    syntax=false
+    if(inFuncP===true) syntax=true
+    return syntax
+}
 export const SyntaxAnalyzer=(token)=>{
+    syntax=true
     i=0
     t=token
     if(START()){
@@ -62,9 +68,12 @@ function DEFS(){
 function MST() {
     if(find(MST1,t[i].CP)){
         if(SST()){
+            console.log("SST TRUE",t[i].CP)
             if(MST()){
                 return true
             }
+        }else{
+            console.log("SST false")
         }
     }
     else if(find(MST2,t[i].CP)){
@@ -74,42 +83,88 @@ function MST() {
 }
 function SST(){
     if(SST1()){
+        console.log("sst1 treu",t[i].VP)
         if(SSTNEXT()){
             return true
         }
     }
+    else
+        console.log("sst1 false",t[i].VP)
     return false
 }
 function SST1(){
     if(find(SST11,t[i].CP)){
-        if(DEC()){
+        console.log("status",t[i].CP,i,"in sst",syntax)
+        if(syntax && t[i].CP==="DT" && DEC()){
+            console.log("status",t[i].CP,i,"DEC passes")
+            if(t[i].CP===";"){
+                i++
+                return true
+            }
             return true
         }
-        else if(WHILE()){
+        else if(syntax && t[i].CP==="while" && WHILE()){
+            if(t[i].CP===";"){
+                i++
+                return true
+            }
             return true
         }
-        else if(FOR()){
+        else if(syntax && t[i].CP==="for" && FOR()){
+            if(t[i].CP===";"){
+                i++
+                return true
+            }
             return true
         }
-        else if(DO_WHILE()){
+        else if( syntax && t[i].CP==="do" && DO_WHILE()){
+            if(t[i].CP===";"){
+                i++
+                return true
+            }
             return true
         }
-        else if(CONST_DT()){
+        else if(syntax && t[i].CP==="const" && CONST_DT()){
+            if(t[i].CP===";"){
+                i++
+                return true
+            }
             return true
         }
-        else if(GTSWID()){
+        else if(syntax && t[i].CP==="inc_dec" && INC_DEC_PRE()){
+            if(t[i].CP===";"){
+                i++
+                return true
+            }
             return true
         }
-        else if(INC_DEC_PRE()){
+        else if(syntax && t[i].CP==="if" && IF_ELSE()){
+            if(t[i].CP===";"){
+                i++
+                return true
+            }
             return true
         }
-        else if(IF_ELSE()){
+        else if(syntax && t[i].CP==="switch" && SWITCH_CASE()){
+            if(t[i].CP===";"){
+                i++
+                return true
+            }
             return true
         }
-        else if(SWITCH_CASE()){
+        else if(syntax && t[i].CP==="return" && RETURN()){
+            console.log("status",t[i].VP,i,"ret",syntax)
+            if(t[i].CP===";"){
+                i++
+                return true
+            }
             return true
-        }
-        else if(RETURN()){
+        } 
+        else if(syntax && t[i].CP==="ID" && GTSWID()){
+            if(t[i].CP===";"){
+                i++
+                return true
+            }
             return true
         }
     }
@@ -139,7 +194,7 @@ function WHILE(){
             }
         }
     }
-    return false
+    return syntaxFalse()
 }
 function FOR(){
     if(t[i].CP==="for"){
@@ -156,7 +211,7 @@ function FOR(){
             }
         }
     }
-    return false
+    return syntaxFalse()
 }
 function FOR_PARAM(){
     if(t[i].CP==="ID"){
@@ -253,6 +308,9 @@ function C3(){
         if(GTSWID()){
             return true
         }
+        else{
+            console.log("GTSWID false")
+        }
     }
     else if(t[i].CP===")"){
         return true
@@ -277,7 +335,7 @@ function DO_WHILE(){
             }
         }
     }
-    return false
+    return syntaxFalse()
 }
 function CONST_DT(){
     if(t[i].CP==="const"){
@@ -291,7 +349,7 @@ function CONST_DT(){
             }
         }
     }
-    return false
+    return syntaxFalse()
 }
 function CONST_DT1(){
     if(t[i].CP==="AOR"||t[i].CP==="AOP"){
@@ -391,6 +449,9 @@ function GTSWID(){
                 console.log("status",t[i].CP,i,"NEXT GTSWID ")
                 return true
             }
+            else{
+                console.log("NEXT_GTSWID false",t[i].CP,t[i].VP)
+            }
         }
     }
     return false
@@ -425,6 +486,9 @@ function GTSDEC(){
         if(DEC2()){
             console.log("status",t[i].CP,i,"DEC2 passed")
             return true
+        }
+        else{
+            console.log("DEC 2 false")
         }
     }
     else if(t[i].CP==="{"){
@@ -549,7 +613,7 @@ function INC_DEC_PRE(){
             }
         }
     }
-    return false
+    return syntaxFalse()
 }
 function IF_ELSE(){
     if(t[i].CP==="if"){
@@ -568,6 +632,7 @@ function IF_ELSE(){
             }
         }
     }
+    return syntaxFalse()
 }
 function ELSE(){
     if(t[i].CP==="else"){
@@ -596,7 +661,7 @@ function SWITCH_CASE(){
             }
         }
     }
-    return false
+    return syntaxFalse()
 }
 function SW_BODY(){
     if(t[i].CP==="{"){
@@ -710,16 +775,18 @@ function BODY(){
     }
 }
 function RETURN(){
+    console.log("retaaaaa",t[i].CP)
     if(t[i].CP==="return"){
         i++
         if(INIT_VALUE_2()){
             return true
         }
     }
-    return false
+    return syntaxFalse()
 }
 function FUNCTION_DEC(){
-    if(t[i].CP==="function"){
+    if(t[i].CP==="function" ){
+        console.log("function passes")
         i++
         if(FUNC_DEF_1()){
             return true
@@ -732,11 +799,16 @@ function FUNC_DEF_1(){
         i++
         if(t[i].CP==="("){
             i++
+            console.log("before dec param",syntax)
+            inFuncP=true
             if(DEC_PARAMS()){
+                inFuncP=false
+                console.log("after dec param",syntax)
                 if(t[i].CP===")"){
                     i++
                     if(t[i].CP==="{"){
                         i++
+                        console.log("{ passes",t[i].CP,syntax)
                         if(MST()){
                             if(t[i].CP==="}"){
                                 i++
@@ -876,6 +948,7 @@ function FUNC_DEF(){
 }
 function DEC_PARAMS(){
     if(t[i].CP==="DT"){
+        console.log("DTT PAAASSSEEES")
         if(DEC()){
             return true
         }
@@ -883,7 +956,9 @@ function DEC_PARAMS(){
     else if(t[i].CP==="ID"){
         i++
         if(DP1()){
+            console.log("1st param pass",syntax,t[i].CP)
             if(NEXT_DEC_PARAM()){
+                
                 return true
             }
         }
@@ -954,18 +1029,20 @@ function PRO_BODY(){
     }
 }
 function DEC(){
+    console.log("in DEC")
     if(t[i].CP==="DT"){
         i++
         if(t[i].CP==="ID"){
             i++
             if(DEC1()){
+                console.log("DEC 1 PASSSES",t[i].CP,syntax)
                 if(NEXT_DEC()){
                     return true
                 }
             }
         }
     }
-    return false
+    return syntaxFalse()
 }
 function DEC1(){
     if(find(DEC11,t[i].CP) ){
@@ -974,18 +1051,22 @@ function DEC1(){
     else if(t[i].CP==="AOR"){
         i++
         if(DEC2()){
+            console.log("status",t[i].CP,t[i].VP,i,"dec 2 passes",syntax)
             return true
         }
     }
     return false
 }
 function DEC2() {
-    console.log("status",t[i].CP,t[i].VP,i," in dEC2")
+    
     if(t[i].CP==="ID"){
         i++
         console.log("status",t[i].CP,t[i].VP,i,"going in dEC3")
         if(DEC3()){
+            console.log("dec 3 passes")
             return true
+        }else{
+            console.log("dec 3 pfalse")
         }
     }
     else if(E()){
@@ -1008,6 +1089,9 @@ function DEC3(){
                 return true
             }
         }
+        else{
+            console.log("MERGED INIT FALSE")
+        }
     }
     else if(find(EXP11,t[i].CP)){
         if(EXP1()){
@@ -1017,8 +1101,10 @@ function DEC3(){
     return false
 }
 function MERGED_INIT(){
+    console.log("status",t[i].CP,t[i].VP,i," in mergend init")
     if(find(FirstOfMOV, t[i].CP) ){
         if(MOV()){
+            console.log("MOV FALAWE")
             return true
         }
     }
@@ -1040,7 +1126,9 @@ function MERGED_INIT(){
 function MOV(){
     if(t[i].CP==="."){
         i++
+        console.log("status",t[i].CP,t[i].VP,i,"dot passes")
         if(t[i].CP==="ID"){
+            console.log("status",t[i].CP,t[i].VP,i,"ID Passes rer")
             i++
             if(MERGED1()){
                 return true
@@ -1133,6 +1221,7 @@ function NEXT_DEC(){
     if(t[i].CP===","){
         i++
         if(t[i].CP==="ID"){
+            console.log("in next dec ID")
             i++
             if(DEC1()){
                 if(NEXT_DEC()){
@@ -1140,6 +1229,9 @@ function NEXT_DEC(){
                 }
             }
         }
+    }
+    else if(find(MST1,t[i].CP)){
+        return true
     }
     else if(t[i].CP===";"){
         return true
@@ -1171,7 +1263,6 @@ function EXP(){
     return false
 }
 function EXP1(){
-    console.log("status",t[i].CP,"IN EXP")
     if(find(EXP11,t[i].CP)){
         if(T()){
             if(E_DASH()){
@@ -1184,13 +1275,15 @@ function EXP1(){
 function E_DASH(){
     if(t[i].CP==="||"){
         i++
-        if(N_Q()){
-            if(EXP1()){
-                return true
+        if(VAL()){
+            if(T()){
+                if(E_DASH()){
+                    return true
+                }
             }
         }
     }
-    else if(find(E_DASH1,t[i].CP)){
+    else if(find(EXP11,t[i].CP)){
         return true
     }
     return false
@@ -1205,16 +1298,19 @@ function T(){
     }
     return false
 }
+
 function T_DASH(){
     if(t[i].CP==="&&"){
         i++
-        if(N_Q()){
-            if(EXP1()){
-                return true
+        if(VAL()){
+            if(S()){
+                if(T_DASH()){
+                    return true
+                }
             }
         }
     }
-    else if(find(T_DASH1,t[i].CP)){
+    else if(find(EXP11,t[i].CP)){
         return true
     }
     return false
@@ -1229,16 +1325,19 @@ function S(){
     }
     return false
 }
+
 function S_DASH(){
     if(t[i].CP==="ROP"){
         i++
-        if(N_Q()){
-            if(EXP1()){
-                return true
+        if(VAL()){
+            if(R()){
+                if(S_DASH()){
+                    return true
+                }
             }
         }
     }
-    else if(find(S_DASH1,t[i].CP)){
+    else if(find(EXP11,t[i].CP)){
         return true
     }
     return false
@@ -1253,16 +1352,19 @@ function R(){
     }
     return false
 }
+
 function R_DASH(){
     if(t[i].CP==="PM"){
         i++
-        if(N_Q()){
-            if(R()){
-                return true
+        if(VAL()){
+            if(Q()){
+                if(R_DASH()){
+                    return true
+                }
             }
         }
     }
-    else if(find(R_DASH1,t[i].CP)){
+    else if(find(EXP11,t[i].CP)){
         return true
     }
     return false
@@ -1275,23 +1377,21 @@ function Q(){
     }
     return false
 }
-
 function Q_DASH(){
     if(t[i].CP==="MDM"){
         i++
-        if(N_Q()){
+        if(VAL()){
             if(Q_DASH()){
                 return true
             }
         }
     }
-    else if(find(Q_DASH1,t[i].CP)){
+    else if(find(EXP11,t[i].CP)){
         return true
     }
     return false
 }
-function N_Q(){ 
-    console.log("status",t[i].CP,t[i].VP,"N_Q")
+function VAL(){
     if(find(E1,t[i].CP)){
         if(E()){
             return true
@@ -1304,6 +1404,142 @@ function N_Q(){
     }
     return false
 }
+// function EXP1(){
+//     console.log("status",t[i].CP,"IN EXP")
+//     if(find(EXP11,t[i].CP)){
+//         if(T()){
+//             if(E_DASH()){
+//                 console.log("status",t[i].CP,"ret true from EXP1",syntax)
+//                 return true
+//             }
+//         }
+//     }
+//     return false
+// }
+// function E_DASH(){
+//     if(t[i].CP==="||"){
+//         i++
+//         if(N_Q()){
+//             if(EXP1()){
+//                 return true
+//             }
+//         }
+//     }
+//     else if(find(E_DASH1,t[i].CP)){
+//         return true
+//     }
+//     return false
+// }
+// function T(){
+//     if(find(EXP11,t[i].CP)){
+//         if(S()){
+//             if(T_DASH()){
+//                 return true
+//             }
+//         }
+//     }
+//     return false
+// }
+// function T_DASH(){
+//     if(t[i].CP==="&&"){
+//         i++
+//         if(N_Q()){
+//             if(EXP1()){
+//                 return true
+//             }
+//         }
+//     }
+//     else if(find(T_DASH1,t[i].CP)){
+//         return true
+//     }
+//     return false
+// }
+// function S(){
+//     if(find(EXP11,t[i].CP)){
+//         if(R()){
+//             if(S_DASH()){
+//                 return true
+//             }
+//         }
+//     }
+//     return false
+// }
+// function S_DASH(){
+//     if(t[i].CP==="ROP"){
+//         i++
+//         if(N_Q()){
+//             if(EXP1()){
+//                 return true
+//             }
+//         }
+//     }
+//     else if(find(S_DASH1,t[i].CP)){
+//         return true
+//     }
+//     return false
+// }
+// function R(){
+//     if(find(EXP11,t[i].CP)){
+//         if(Q()){
+//             if(R_DASH()){
+//                 return true
+//             }
+//         }
+//     }
+//     return false
+// }
+// function R_DASH(){
+//     if(t[i].CP==="PM"){
+//         i++
+//         if(N_Q()){
+//             if(R()){
+//                 return true
+//             }
+//         }
+//     }
+//     else if(find(R_DASH1,t[i].CP)){
+//         return true
+//     }
+//     return false
+// }
+// function Q(){
+//     if(find(EXP11,t[i].CP)){
+//         if(Q_DASH()){
+//             return true
+//         }
+//     }
+//     return false
+// }
+
+// function Q_DASH(){
+//     if(t[i].CP==="MDM"){
+//         i++
+//         if(N_Q()){
+//             if(Q_DASH()){
+//                 return true
+//             }
+//         }
+//     }
+//     else if(find(Q_DASH1,t[i].CP)){
+//         console.log("Q_DASH1 true",t[i].CP)
+//         return true
+//     }
+//     return false
+// }
+// function N_Q(){ 
+//     console.log("status",t[i].CP,t[i].VP,"N_Q")
+//     if(find(E1,t[i].CP)){
+//         if(E()){
+//             return true
+//         }
+//     }
+//     else if(t[i].CP==="ID"){
+//         if(F()){
+//             return true
+//         }
+//     }
+//     return false
+// }
 function E(){
     if(t[i].CP==="("){
         i++
@@ -1315,10 +1551,10 @@ function E(){
         }
     }
     else if(t[i].CP==="!"){
-        i++
-        if(N_Q()){
-            return true
-        }
+        // i++
+        // if(N_Q()){
+        //     return true
+        // }
     }
     else if(t[i].CP==="inc_dec"){
         i++

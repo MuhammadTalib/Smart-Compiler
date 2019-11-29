@@ -6,8 +6,6 @@ import { connect } from "react-redux"
 import FileTab from "./../FileTab/FileTab";
 import { edit_file } from './../../Redux/File/action';
 
-const a="gaggaa"
-const a1=<div>hahahah</div>
 class Editor extends Component {
 
     state = {
@@ -20,7 +18,7 @@ class Editor extends Component {
         document.getElementById("textarea")
         var key = (e.which) ? e.which : e.keyCode
         if (key === 13) {
-            console.log("enter key presed")
+           
             var lineNo = e.target.value.substr(0, e.target.selectionStart).split(/\r?\n|\r/).length;
             if (lineNo >= this.state.lines) {
                 this.setState({ lines: lineNo + 1 })
@@ -36,10 +34,6 @@ class Editor extends Component {
         }
     }
     checkName=(e)=>{
-        console.log("e",e.target)
-        // e.target.value.map(m=>{
-
-        // })
         if(e.target.value==="s"){
             e.target.style.color="#ff0"
         }
@@ -68,16 +62,8 @@ class Editor extends Component {
                 className="texteditor"
                 rowsMax={10}
                 onChange={(e) => {
-                    // if(e.target.value[e.target.value.length-1]==="{"){
-                    //     this.setState({indent:this.state.indent+1})
-                    // }
-                    // if(e.target.value[e.target.value.length-1]==="}"){
-                    //     this.setState({indent:this.state.indent-1})
-                    // }
                     this.setState({text:e.target.value})
-                    //if(e.target.value[e.target.value.length-1]!=="\n"){
-                        this.props.editFile(e.target.value)
-                   // }
+                    this.props.editFile(e.target.value)
                 }}
                 value={this.props.selectedFile.text} >
                    
