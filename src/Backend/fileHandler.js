@@ -2,6 +2,7 @@ import { saveAs as saveas } from 'file-saver';
 import { store } from './../Redux/store';
 import { add_new_file } from './../Redux/File/action';
 import { SyntaxAnalyzer } from './SyntaxAnalyzer/SyntaxAnalyzer';
+import checkingSemantics from "./SemanticAnalyzer/SemanticAnalyzer"
 
 export const saveAs = () => {
     var file = store.getState().files.selectedFile
@@ -39,6 +40,14 @@ export const saveTokenSetAs = (token) => {
     if(SyntaxAnalyzer(token)){
         console.log("Valid Syntax")
     }
+    checkingSemantics()
+    // var ref=React.createRef()
+    // var A= new CalssTableItem("A","B","staic","public",ref)
+    // ref.current=[]
+    // ref.current.push("1","2","3")
+    // A.display()
+    // ChangeRef(ref.current)
+    // A.display()
 
 
 //var text =JSON.stringify(token.map(t=>JSON.stringify(t)))
@@ -57,3 +66,6 @@ export const saveTokenSetAs = (token) => {
         }
     }
 }
+// function ChangeRef(ref){
+//     ref.push("9","10","11")
+// }

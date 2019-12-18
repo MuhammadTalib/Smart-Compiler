@@ -1,12 +1,16 @@
 import { find, Start1, DEFS1, DEFS3, DEFS2, MST1, MST2, CLASS_MST1,
     DP11, SST11, SSTNEXT1, ELSE1, FOR_PARAM_21, FirstOfEXP, 
     FirstOfINIT_VALUE_2, NextConstDT1, GT_INIT1, GT_INIT2, CALLING_PARAMS1,
-    DEC11, E1, EXP11, E_DASH1, T_DASH1, S_DASH1, R_DASH1, Q_DASH1, CONST, 
+    DEC11, E1, EXP11, CONST, 
     N_INIT_VALUE1, ARRAY1, ARRAY_VALUES1, FirstOfMOV, FirstOfMergedInit, 
     FollowOfMergedN_ARR, FollowOfINIT_VALUE1, FirstOfOTHER_VALUE, DEC21 } from "./SelectionSets"
 
 
 var i,t,syntax=true,inFuncP=false
+
+// var a={a:{a:0,b:()=>{}}}
+// a.a.b().a=2
+// console.log("a",a)
 
 function syntaxFalse(){
     syntax=false
@@ -786,7 +790,6 @@ function RETURN(){
 }
 function FUNCTION_DEC(){
     if(t[i].CP==="function" ){
-        console.log("function passes")
         i++
         if(FUNC_DEF_1()){
             return true
@@ -799,16 +802,13 @@ function FUNC_DEF_1(){
         i++
         if(t[i].CP==="("){
             i++
-            console.log("before dec param",syntax)
             inFuncP=true
             if(DEC_PARAMS()){
                 inFuncP=false
-                console.log("after dec param",syntax)
                 if(t[i].CP===")"){
                     i++
                     if(t[i].CP==="{"){
                         i++
-                        console.log("{ passes",t[i].CP,syntax)
                         if(MST()){
                             if(t[i].CP==="}"){
                                 i++
@@ -911,7 +911,7 @@ function FUNC_DEF(){
             if(DEC_PARAMS()){
                 if(t[i].CP===")"){
                     i++
-                    if(t[i].CP==="FUNC_ARROW"){
+                    if(t[i].CP==="=>"){
                         i++
                         if(t[i].CP==="{"){
                             i++

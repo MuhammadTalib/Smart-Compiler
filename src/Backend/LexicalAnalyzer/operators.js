@@ -16,7 +16,7 @@ export const operators = [
     { operator: "<=", class: "ROP" },
     { operator: "!=", class: "ROP" },
     { operator: "==", class: "ROP" },
-    { operator: "=>", class: "FUNC_ARROW" },
+    { operator: "=>", class: "=>" },
 
 
     { operator: "&&", class: "&&" }, //Logical And
