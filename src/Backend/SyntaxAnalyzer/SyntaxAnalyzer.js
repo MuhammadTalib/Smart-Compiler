@@ -1247,28 +1247,41 @@ function NEXT_DEC(){
     return false
 }
 function EXP(){
-    if(t[i].CP==="ID"){
-        i++
-        if(NEW_ASGN()){
+    if(t[i].CP === "ID" || find(E1,t[i].CP)){
+        if(VAL()){
             if(EXP1()){
                 return true
             }
         }
     }
-    else if(find(E1, t[i].CP)){
-        if(E()){
-            if(EXP1()){
-                return true
-            }
-        }
-    }
+    // if(t[i].CP==="ID"){
+    //     i++
+    //     if(NEW_ASGN()){
+    //         if(EXP1()){
+    //             return true
+    //         }
+    //     }
+    // }
+    // else if(find(E1, t[i].CP)){
+    //     if(E()){
+    //         if(EXP1()){
+    //             return true
+    //         }
+    //     }
+    // }
     return false
 }
 function EXP1(){
     if(find(EXP11,t[i].CP)){
-        if(T()){
-            if(E_DASH()){
-                return true
+        if(Q_DASH()){
+            if(R_DASH()){
+                if(S_DASH()){
+                    if(T_DASH()){
+                        if(E_DASH()){
+                            return true
+                        }
+                    }
+                }
             }
         }
     }
@@ -1277,11 +1290,9 @@ function EXP1(){
 function E_DASH(){
     if(t[i].CP==="||"){
         i++
-        if(VAL()){
-            if(T()){
-                if(E_DASH()){
-                    return true
-                }
+        if(T()){
+            if(E_DASH()){
+                return true
             }
         }
     }
@@ -1304,11 +1315,9 @@ function T(){
 function T_DASH(){
     if(t[i].CP==="&&"){
         i++
-        if(VAL()){
-            if(S()){
-                if(T_DASH()){
-                    return true
-                }
+        if(S()){
+            if(T_DASH()){
+                return true
             }
         }
     }
@@ -1331,11 +1340,9 @@ function S(){
 function S_DASH(){
     if(t[i].CP==="ROP"){
         i++
-        if(VAL()){
-            if(R()){
-                if(S_DASH()){
-                    return true
-                }
+        if(R()){
+            if(S_DASH()){
+                return true
             }
         }
     }
@@ -1358,11 +1365,9 @@ function R(){
 function R_DASH(){
     if(t[i].CP==="PM"){
         i++
-        if(VAL()){
-            if(Q()){
-                if(R_DASH()){
-                    return true
-                }
+        if(Q()){
+            if(R_DASH()){
+                return true
             }
         }
     }
@@ -1373,8 +1378,10 @@ function R_DASH(){
 }
 function Q(){
     if(find(EXP11,t[i].CP)){
-        if(Q_DASH()){
-            return true
+        if(VAL()){
+            if(Q_DASH()){
+                return true
+            }
         }
     }
     return false
@@ -1405,6 +1412,44 @@ function VAL(){
         }
     }
     return false
+}
+
+function E(){
+    if(t[i].CP==="("){
+        i++
+        if(EXP()){
+            if(t[i].CP===")"){
+                i++
+                return true
+            }
+        }
+    }
+    else if(t[i].CP==="!"){
+         i++
+        if(VAL()){
+            return true
+        }
+    }
+    else if(t[i].CP==="inc_dec"){
+        i++
+        if(F()){
+            return true
+        }
+        
+    }
+    else if(find(CONST,t[i].CP)){
+        i++
+        return true
+    }
+    return false
+}
+function F(){
+    if(t[i].CP==="ID"){
+        i++
+        if(NEW_ASGN()){
+            return true
+        }
+    }
 }
 // function EXP1(){
 //     console.log("status",t[i].CP,"IN EXP")
@@ -1542,43 +1587,6 @@ function VAL(){
 //     }
 //     return false
 // }
-function E(){
-    if(t[i].CP==="("){
-        i++
-        if(EXP()){
-            if(t[i].CP===")"){
-                i++
-                return true
-            }
-        }
-    }
-    else if(t[i].CP==="!"){
-        // i++
-        // if(N_Q()){
-        //     return true
-        // }
-    }
-    else if(t[i].CP==="inc_dec"){
-        i++
-        if(F()){
-            return true
-        }
-        
-    }
-    else if(find(CONST,t[i].CP)){
-        i++
-        return true
-    }
-    return false
-}
-function F(){
-    if(t[i].CP==="ID"){
-        i++
-        if(NEW_ASGN()){
-            return true
-        }
-    }
-}
 function NEW_ASGN(){
     if(t[i].CP==="inc_dec"){
         i++
