@@ -7,6 +7,24 @@ export default class SymbolTable{
     constructor(){
         this.ScopeTable=[]
         this.ClassTable=[]
+        this.CurrScope=null
+        this.nextScope=0
+        this.ScopeStack=[]
+    }
+    createScope(){
+        if(this.CurrScope===null){
+            this.CurrScope=this.nextScope
+            this.nextScope=this.nextScope+1
+        }else{
+            this.ScopeStack.push(this.CurrScope)
+            this.CurrScope=this.nextScope
+            this.nextScope=this.nextScope+1
+        }
+        return this.CurrScope
+    }
+    deleteScope(){
+        this.CurrScope=this.ScopeStack.pop()
+        console.log("Scope Deleted",this.CurrScope)
     }
     insertST(N,T,S){
         for(var i=0;i<this.ScopeTable.length;i++){
