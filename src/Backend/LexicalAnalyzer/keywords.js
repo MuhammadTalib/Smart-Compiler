@@ -31,5 +31,7 @@ export const keywords = [
     { word: "function", class: "function" },
     { word: "Array", class: "Array" },
     { word: "Array2D", class: "Array2D" },
-    { word: "print", class: "print" }
+    { word: "print", class: "print" },
+    { word: "this", class: "this" },
+    { word: "constructor", class: "constructor" }
 ]

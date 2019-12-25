@@ -9,6 +9,7 @@ export const lexicalAnalyzer = (text) => {
     var i, temp,linenum=0,tokenSet=[]
     if(text) for (i = 0; i < text.length;) { 
         temp = wordBreaker(text, i,linenum)
+        console.log("temo",temp.word)
         if(temp!==undefined){
             i = temp.index
             linenum=temp.lineNum
@@ -39,14 +40,14 @@ export const lexicalAnalyzer = (text) => {
                 tokenSet.push({CP:isOperator(temp.word),VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
             }
             else if(isIntConstant(temp.word)){
-                tokenSet.push({CP:"INT_CONST",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
+                tokenSet.push({CP:"int",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
             }
             else if(isStringConstant(temp.word)){
                 var t=temp.word.replace('"','').replace('"','').replace("'",'').replace("'",'')
-                tokenSet.push({CP:"STRING_CONST",VP:t,line:temp.lineNum,index:temp.index-temp.word.length+1})
+                tokenSet.push({CP:"string",VP:t,line:temp.lineNum,index:temp.index-temp.word.length+1})
             }
             else if(isFloatConstant(temp.word)){
-                tokenSet.push({CP:"FLOAT_CONST",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
+                tokenSet.push({CP:"float",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})
             }   
             else{
                 tokenSet.push({CP:"Invalid Lexene",VP:temp.word,line:temp.lineNum,index:temp.index-temp.word.length+1})

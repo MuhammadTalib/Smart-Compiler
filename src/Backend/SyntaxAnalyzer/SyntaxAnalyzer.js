@@ -2,10 +2,11 @@ import { find, Start1, DEFS1, DEFS3, DEFS2, MST1, MST2, CLASS_MST1,
     //DP11, 
     SST11, SSTNEXT1, ELSE1, FOR_PARAM_21, FirstOfEXP, 
     FirstOfINIT_VALUE_2, NextConstDT1, GT_INIT1, GT_INIT2, CALLING_PARAMS1,
-    DEC11, E1, EXP11, CONST, 
+    DEC11, E1, EXP11, CONST, EXP12,
     N_INIT_VALUE1, ARRAY1, ARRAY_VALUES1, FirstOfMOV, FirstOfMergedInit, 
     FollowOfMergedN_ARR, FollowOfINIT_VALUE1, FirstOfOTHER_VALUE, DEC21 } from "./SelectionSets"
 import SymbolTable from "../SemanticAnalyzer/SymbolTable"
+import React from 'react';
 
 
 var i,t,syntax=true,inFuncP=false
@@ -27,6 +28,8 @@ export const SyntaxAnalyzer=(token)=>{
         if(t[i].CP==="$"){
             i++
             console.log("VALID SYNTAX! Congratulations!")
+            console.log("ST",ST.ScopeTable)
+            console.log("CT",ST.ClassTable)
         }
     }
     else {
@@ -86,79 +89,79 @@ function MST(scope,RT) {
     return false
 }
 function SST(scope,RT){
-    if(SST1()){
+    if(SST1(scope,RT)){
         if(find(SSTNEXT1, t[i].CP)){
             return true
         }
     }
     return false
 }
-function SST1(){
+function SST1(scope, RT){
     if(find(SST11,t[i].CP)){
-        if(syntax && t[i].CP==="DT" && DEC()){
+        if(syntax && t[i].CP==="DT" && DEC(scope)){
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if(syntax && t[i].CP==="while" && WHILE()){
+        else if(syntax && t[i].CP==="while" && WHILE(scope)){
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if(syntax && t[i].CP==="for" && FOR()){
+        else if(syntax && t[i].CP==="for" && FOR(scope)){
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if( syntax && t[i].CP==="do" && DO_WHILE()){
+        else if( syntax && t[i].CP==="do" && DO_WHILE(scope)){
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if(syntax && t[i].CP==="const" && CONST_DT()){
+        else if(syntax && t[i].CP==="const" && CONST_DT(scope)){
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if(syntax && t[i].CP==="inc_dec" && INC_DEC_PRE()){
+        else if(syntax && t[i].CP==="inc_dec" && INC_DEC_PRE(scope)){
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if(syntax && t[i].CP==="if" && IF_ELSE()){
+        else if(syntax && t[i].CP==="if" && IF_ELSE(scope)){
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if(syntax && t[i].CP==="switch" && SWITCH_CASE()){
+        else if(syntax && t[i].CP==="switch" && SWITCH_CASE(scope)){
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if(syntax && t[i].CP==="return" && RETURN()){
+        else if(syntax && t[i].CP==="return" && RETURN(scope,RT)){
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         } 
-        else if(syntax && t[i].CP==="ID" && GTSWID()){
+        else if(syntax && t[i].CP==="ID" && GTSWID(scope)){
             if(t[i].CP===";"){
                 i++
                 return true
@@ -168,21 +171,24 @@ function SST1(){
     }
     return false
 }
-function SSTNEXT(){
-    if(find(SSTNEXT1, t[i].CP)){
-        return true
-    }
-    return false;
-}
-function WHILE(){
+// function SSTNEXT(){
+//     if(find(SSTNEXT1, t[i].CP)){
+//         return true
+//     }
+//     return false;
+// }
+function WHILE(scope){
     if(t[i].CP==="while"){
         i++
         if(t[i].CP==="("){
             i++
-            if(EXP()){
+            var T=React.createRef()
+            if(EXP(T,scope)){
+               var Tr=ST.compatibility(T.current,"bool","cond")
+               if(!Tr){ console.log("Condition Type Mismatch at line", t[i].line)}
                if(t[i].CP===")"){
                    i++
-                   if(BODY()){
+                   if(BODY(scope)){
                        return true
                    }
                } 
@@ -597,7 +603,8 @@ function IF_ELSE(){
         i++
         if(t[i].CP==="("){
             i++
-            if(EXP()){
+            var T = React.createRef()
+            if(EXP(T, S)){
                 if(t[i].CP===")"){
                     i++
                     if(BODY()){
@@ -794,39 +801,53 @@ function FUNC_DEF_1(){
     }
     return false
 }
-function CLASS() {
+function CLASS(scope) {
     if(t[i].CP==='class'){
         i++
         if(t[i].CP==="ID"){
+            var N=t[i].VP
             i++
-            if(CLASS_STRUCT()){
+            if(CLASS_STRUCT(N)){
                 return true
             }
         }
     }
     return false
 }
-function CLASS_STRUCT(){
+function CLASS_STRUCT(N){
     if(t[i].CP==="{"){
-        if(CLASS_BODY()){
+        if(CLASS_BODY(N,null)){
             return true
         }
     }
     else if(t[i].CP===":"){
         i++
         if(t[i].CP==="ID"){
+            var PN=t[i].VP
+            var PL=null
+            if(ST.lookupCT(PN)){
+                PL=PN
+            }
+            else{
+                console.log("Undeclared Class ",PN, " Inherited at line", t[i].line,)
+            }
             i++
-            if(CLASS_BODY()){
+            if(CLASS_BODY(N,PL)){
                 return true
             }
         }
     }
     return true
 }
-function CLASS_BODY(){
+function CLASS_BODY(N,PL){
+    var ref=React.createRef()
+    console.log("inserting",N, "parent", PL , ref)
+    if(!ST.insertCT(N, "class", PL , ref)){
+        console.log("Redeclaration Error | Name ",N," is Already in used")
+    }
     if(t[i].CP==="{"){
         i++
-        if(CLASS_MST()){
+        if(CLASS_MST(ref)){
             if(t[i].CP==="}"){
                 i++
                 return true
@@ -835,11 +856,13 @@ function CLASS_BODY(){
     }
     return true
 }
-function CLASS_MST() {
+function CLASS_MST(ref) {
     if(find(CLASS_MST1,t[i].CP)){
-        if(CLASS_ST()){
-            if(CLASS_MST()){
-                return true
+        if(CLASS_CONSTRUCTOR(ref)){
+            if(CLASS_ST(ref)){
+                if(CLASS_MST(ref)){
+                    return true
+                }
             }
         }
     }
@@ -847,6 +870,76 @@ function CLASS_MST() {
         return true
     }
     return false    
+}
+function CLASS_CONSTRUCTOR(ref){
+    if(t[i].CP==="constructor"){
+        i++
+        if(t[i].CP==="("){
+            i++
+            if(DEC_PARAMS()){
+                if(t[i].CP===")"){
+                    i++
+                    if(t[i].CP==="{"){
+                        i++
+                        if(CONSTRUCTOR_BODY()){
+                            if(t[i].CP==="}"){
+                                i++
+                                return true
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+    else if(find(CLASS_MST1,t[i].CP)){
+        return true
+    }
+    return false
+}
+function CONSTRUCTOR_BODY(){
+    if(t[i].CP==="}"){
+        return true
+    }
+    else if(find(SST11,t[i].CP) || t[i].CP==="this"){
+        if(C_B_I()){
+            if(SST1()){
+                return true
+            }
+        }
+    }
+    return false
+}
+function C_B_I(){
+    if(t[i].CP==="this"){
+        if(THIS_VAR()){
+            return true
+        }
+    }
+    else if(find(SST11,t[i].CP)){
+        if(SST1()){
+            return true
+        }
+    }
+}
+function THIS_VAR(){
+    if(t[i].CP==="this"){
+        i++
+        if(t[i].CP==="."){
+            i++
+            if(t[i].CP==="ID"){
+                i++
+                if(t[i].CP==="AOR"){
+                    i++
+                    if(DEC2()){
+                        return true
+                    }
+                }
+            }
+        }
+    }
+    return false
 }
 function CLASS_ST(){
     if(t[i].CP==="ID"){
@@ -1051,12 +1144,17 @@ function PRO_BODY(){
         }
     }
 }
-function DEC(){
+function DEC(scope){
     if(t[i].CP==="DT"){
+        var T = t[i].VP
         i++
         if(t[i].CP==="ID"){
+            var N = t[i].VP
             i++
-            if(DEC1()){
+            if(DEC1(T,scope)){ 
+                if(!ST.insertST(N,T,scope)){
+                    console.log("Redeclaration Error at Line :", t[i].line,"Variable",N)
+                }
                 if(NEXT_DEC()){
                     return true
                 }
@@ -1065,63 +1163,78 @@ function DEC(){
     }
     return syntaxFalse()
 }
-function DEC1(){
+function DEC1(Tl,scope){
     if(find(DEC11,t[i].CP) ){
         return true
     }
     else if(t[i].CP==="AOR"){
+        var O=t[i].VP
         i++
-        if(DEC2()){
+        var Tr=React.createRef()
+        if(DEC2(Tr,scope)){
+            console.log("Tr",Tr,Tl)
+            if(!ST.compatibility(Tl,Tr.current,O)){
+                console.log("Can't Assign variable to mismatch type")
+            }
             return true
         }
     }
     return false
 }
-function DEC2() {
-    
+function DEC2(T,scope) {
     if(t[i].CP==="ID"){
+        var N=t[i].VP
+        var CN=React.createRef()
         i++
-        if(DEC3()){
+        if(DEC3(N,T,scope,CN)){
             return true
         }
     }
-    else if(E()){
-        if(EXP1()){
-            return true
-        }
+    else if(EXP(T,scope)){
+        return true
     }
     return false
 }
-function DEC3(){
+function DEC3(N,T,scope,CN){
     if(find(DEC11,t[i].CP) ){
+        T.current=ST.lookupST(N)
         return true
     }
     else if(t[i].CP==="[" || t[i].CP==="." || t[i].CP==="(" || t[i].CP==="$"){
-        if(MERGED_INIT()){
-            if(EXP1()){
+        var Tl=React.createRef()
+        if(MERGED_INIT(N,Tl,scope,CN)){
+            if(EXP1(Tl,T,scope)){
                 return true
             }
         }
     }
     else if(find(EXP11,t[i].CP)){
-        if(EXP1()){
+        Tl=React.createRef()
+        Tl.current=ST.lookupST(N)
+        console.log("yesssss")
+        if(EXP1(Tl,T,scope)){
+            console.log("pessed")
             return true
         }
     }
     return false
 }
-function MERGED_INIT(){
+function MERGED_INIT(N,T,scope,CN){
     if(find(FirstOfMOV, t[i].CP) ){
-        if(MOV()){
+        if(MOV(N,S,T,CN)){
             return true
         }
     }
     else if(t[i].CP==="["){
         i++
-        if(EXP()){
+        var Te=React.createRef()
+        if(EXP(Te)){
+            if(!ST.compatibility(Te.current,"int","=")){
+                console.log("Type Mismatch at line",t[i].line,"index cannot be not int value")
+            }
             if(t[i].CP==="]"){
                 i++
-                if(M_N_ARR()){
+                if(M_N_ARR(N,scope,T,CN)){
                     return true
                 }
             }
@@ -1129,22 +1242,83 @@ function MERGED_INIT(){
     }
     return false
 }
-function MOV(){
+
+function M_N_ARR(N,scope,T,CN){
+    if(find(FirstOfMOV, t[i].CP)){
+        if(MOV(N,scope,T,CN)){
+            return true
+        }
+    }
+    else if(t[i].CP==="["){
+        i++
+        var Te=React.createRef()
+        if(EXP(Te)){
+            if(!ST.compatibility(Te.current,"int","=")){
+                console.log("Type Mismatch at line",t[i].line,"index cannot be not int value")
+            }
+            if(t[i].CP==="]"){
+                i++
+                if(M_N_ARR2(N,scope,T,CN)){
+                    return true
+                }
+            }
+        }
+    }
+    else if(find(FollowOfMergedN_ARR,t[i].CP)){
+        if(CN.current===null){
+            T.current=ST.lookupST(N)
+        }else{
+            T.current=ST.lookupCDT(N,CN)
+        }
+        return true
+    }
+    return false
+}
+function M_N_ARR2(N,scope,T,CN){
+    if(find(FirstOfMOV, t[i].CP)){
+        if(MOV(N,scope,T,CN)){
+            return true
+        }
+    }
+    else if(find(FollowOfMergedN_ARR,t[i].CP)){
+        if(CN.current===null){
+            T.current=ST.lookupST(N)
+        }else{
+            T.current=ST.lookupCDT(N,CN)
+        }
+        return true
+    }
+    return false
+}
+function MOV(N,scope,T,CN){
     if(t[i].CP==="."){
+        if(CN.current===null){
+            CN.current=ST.lookupST(N)
+        }else{
+            CN.current=ST.lookupCDT(N,CN)
+        }
         i++
         if(t[i].CP==="ID"){
+            N=t[i].VP
+            console.log("N",N)
             i++
-            if(MERGED1()){
+            if(MERGED1(N,scope,T,CN)){
+                console.log("CN=",CN.current)
                 return true
             }
         }
     }
     else if(t[i].CP==="("){
         i++
-        if(CALLING_PARAM()){
+        var PL=React.createRef()
+        if(CALLING_PARAM(PL)){
             if(t[i].CP===")"){
+                CN.current=ST.lookupFT(N,PL,CN)
+                if(CN.current===null){
+                    console.log("Function ",N," is not defined at line ",t[i].line)
+                }
                 i++
-                if(MERGED()){
+                if(MERGED(N,scope,T,CN)){
                     return true
                 }
             }
@@ -1152,14 +1326,15 @@ function MOV(){
     }
     return false
 }
-function MERGED(){
+function MERGED(N,scope,T,CN){
     if(find(EXP11,t[i].CP)){
-        if(EXP1()){
+        
+        if(EXP1(CN,T,scope)){
             return true
-        }
+       }
     }
     else if(find(FirstOfMergedInit,t[i].CP)){
-        if(MERGED_INIT()){
+        if(MERGED_INIT(N,T,scope,CN)){
             if(DEC1()){
                 return true
             }
@@ -1167,14 +1342,21 @@ function MERGED(){
     }
     return false
 }
-function MERGED1(){
+function MERGED1(N,scope,T,CN){
     if(find(EXP11,t[i].CP)){
-        if(EXP1()){
+        if(CN.current===null){
+            CN.current=ST.lookupST(N)
+        }else{
+            CN.current=ST.lookupCDT(N,CN)
+        }
+        if(EXP1(CN,T,scope)){
+            
+            console.log("CN T ",CN,T)
             return true
         }
     }
     else if(find(FirstOfMergedInit,t[i].CP)){
-        if(MERGED_INIT()){
+        if(MERGED_INIT(N,T,scope,CN)){
             if(DEC1()){
                 return true
             }
@@ -1184,39 +1366,6 @@ function MERGED1(){
         if(DEC1()){
             return true
         }
-    }
-    return false
-}
-function M_N_ARR(){
-    if(find(FirstOfMOV, t[i].CP)){
-        if(MOV()){
-            return true
-        }
-    }
-    else if(t[i].CP==="["){
-        i++
-        if(EXP()){
-            if(t[i].CP==="]"){
-                i++
-                if(M_N_ARR2()){
-                    return true
-                }
-            }
-        }
-    }
-    else if(find(FollowOfMergedN_ARR,t[i].CP)){
-        return true
-    }
-    return false
-}
-function M_N_ARR2(){
-    if(find(FirstOfMOV, t[i].CP)){
-        if(MOV()){
-            return true
-        }
-    }
-    else if(find(FollowOfMergedN_ARR,t[i].CP)){
-        return true
     }
     return false
 }
@@ -1246,38 +1395,28 @@ function NEXT_DEC(){
     }
     return false
 }
-function EXP(){
+function EXP(T, scope){
     if(t[i].CP === "ID" || find(E1,t[i].CP)){
-        if(VAL()){
-            if(EXP1()){
+        var Tl=React.createRef()
+        if(VAL(Tl,scope)){
+            if(EXP1(Tl,T,scope)){
                 return true
             }
         }
     }
-    // if(t[i].CP==="ID"){
-    //     i++
-    //     if(NEW_ASGN()){
-    //         if(EXP1()){
-    //             return true
-    //         }
-    //     }
-    // }
-    // else if(find(E1, t[i].CP)){
-    //     if(E()){
-    //         if(EXP1()){
-    //             return true
-    //         }
-    //     }
-    // }
     return false
 }
-function EXP1(){
+function EXP1(Tl,T,scope){
+    if(find(EXP12,t[i].CP)){
+        T.current=Tl.current
+        return true
+    }
     if(find(EXP11,t[i].CP)){
-        if(Q_DASH()){
-            if(R_DASH()){
-                if(S_DASH()){
-                    if(T_DASH()){
-                        if(E_DASH()){
+        if(Q_DASH(Tl,T,scope)){
+            if(R_DASH(Tl,T,scope)){
+                if(S_DASH(Tl,T,scope)){
+                    if(T_DASH(Tl,T,scope)){
+                        if(E_DASH(Tl,T,scope)){
                             return true
                         }
                     }
@@ -1287,24 +1426,30 @@ function EXP1(){
     }
     return false
 }
-function E_DASH(){
+function E_DASH(Tl,T,scope){
     if(t[i].CP==="||"){
+        var O=t[i].VP
         i++
-        if(T()){
-            if(E_DASH()){
+        var Tr=React.createRef()
+        if(L(Tr,scope)){
+            var Ta=React.createRef()
+            Ta.current=ST.compatibility(Tl.current,Tr.current,O)
+            if(E_DASH(Ta,T,scope)){
                 return true
             }
         }
     }
     else if(find(EXP11,t[i].CP)){
+        T.current=Tl.current
         return true
     }
     return false
 }
-function T(){
+function L(T,scope){
     if(find(EXP11,t[i].CP)){
-        if(S()){
-            if(T_DASH()){
+        var Tl=React.createRef()
+        if(S(Tl,scope)){
+            if(T_DASH(Tl,T,scope)){
                 return true
             }
         }
@@ -1312,24 +1457,30 @@ function T(){
     return false
 }
 
-function T_DASH(){
+function T_DASH(Tl,T,scope){
     if(t[i].CP==="&&"){
+        var O=t[i].VP
         i++
-        if(S()){
-            if(T_DASH()){
+        var Tr=React.createRef()
+        if(S(Tr,scope)){
+            var Ta=React.createRef()
+            Ta.current=ST.compatibility(Tl.current,Tr.current,O)
+            if(T_DASH(Ta,T,scope)){
                 return true
             }
         }
     }
     else if(find(EXP11,t[i].CP)){
+        T.current=Tl.current
         return true
     }
     return false
 }
-function S(){
+function S(T,scope){
     if(find(EXP11,t[i].CP)){
-        if(R()){
-            if(S_DASH()){
+        var Tl=React.createRef()
+        if(R(Tl,scope)){
+            if(S_DASH(Tl,T,scope)){
                 return true
             }
         }
@@ -1337,24 +1488,30 @@ function S(){
     return false
 }
 
-function S_DASH(){
+function S_DASH(Tl,T,scope){
     if(t[i].CP==="ROP"){
+        var O=t[i].VP
         i++
-        if(R()){
-            if(S_DASH()){
+        var Tr=React.createRef()
+        if(R(Tr)){
+            var Ta=React.createRef()
+            Ta.current=ST.compatibility(Tl.current,Tr.current,O)
+            if(S_DASH(Ta,T,scope)){
                 return true
             }
         }
     }
     else if(find(EXP11,t[i].CP)){
+        T.current=Tl.current
         return true
     }
     return false
 }
-function R(){
+function R(T,scope){
     if(find(EXP11,t[i].CP)){
-        if(Q()){
-            if(R_DASH()){
+        var Tl=React.createRef()
+        if(Q(Tl,scope)){
+            if(R_DASH(Tl,T,scope)){
                 return true
             }
         }
@@ -1362,62 +1519,73 @@ function R(){
     return false
 }
 
-function R_DASH(){
+function R_DASH(Tl,T,scope){
     if(t[i].CP==="PM"){
+        var O=t[i].VP
         i++
-        if(Q()){
-            if(R_DASH()){
+        var Tr=React.createRef()
+        if(Q(Tr,scope)){
+            var Ta=React.createRef()
+            Ta.current=ST.compatibility(Tl.current,Tr.current,O)
+            if(R_DASH(Ta,T,scope)){
                 return true
             }
         }
     }
     else if(find(EXP11,t[i].CP)){
+        T.current=Tl.current
         return true
     }
     return false
 }
-function Q(){
+function Q(T,scope){
     if(find(EXP11,t[i].CP)){
-        if(VAL()){
-            if(Q_DASH()){
+        var Tl=React.createRef()
+        if(VAL(Tl)){
+            if(Q_DASH(Tl,T,scope)){
                 return true
             }
         }
     }
     return false
 }
-function Q_DASH(){
+function Q_DASH(Tl,T,scope){
     if(t[i].CP==="MDM"){
+        var O=t[i].VP
         i++
-        if(VAL()){
-            if(Q_DASH()){
+        var Tr=React.createRef()
+        if(VAL(Tr)){
+            var Ta=React.createRef()
+            Ta.current=ST.compatibility(Tl.current,Tr.current,O)
+            if(Q_DASH(Ta,T,scope)){
                 return true
             }
         }
     }
     else if(find(EXP11,t[i].CP)){
+        T.current=Tl.current
         return true
     }
     return false
 }
-function VAL(){
+function VAL(T,S){
     if(find(E1,t[i].CP)){
-        if(E()){
+        if(E(T,S)){
             return true
         }
     }
     else if(t[i].CP==="ID"){
-        if(F()){
+        if(F(T,S)){
             return true
         }
     }
     return false
 }
 
-function E(){
+function E(T,scope){
     if(t[i].CP==="("){
         i++
-        if(EXP()){
+        if(EXP(T,scope)){
             if(t[i].CP===")"){
                 i++
                 return true
@@ -1426,167 +1594,42 @@ function E(){
     }
     else if(t[i].CP==="!"){
          i++
-        if(VAL()){
+        if(VAL(T,scope)){
             return true
         }
     }
     else if(t[i].CP==="inc_dec"){
         i++
-        if(F()){
+        if(F(T,scope)){
             return true
         }
         
     }
     else if(find(CONST,t[i].CP)){
+        T.current = t[i].CP
         i++
         return true
     }
+    else if(t[i].CP==="this"){
+        i++
+        if(t[i].CP==="."){
+            i++ 
+            if(F(T,scope)){
+                return true
+            }
+        }
+    }
     return false
 }
-function F(){
+function F(T, scope){
     if(t[i].CP==="ID"){
+        var N=t[i].CP.VP
         i++
-        if(NEW_ASGN()){
+        if(NEW_ASGN(N, T, scope)){
             return true
         }
     }
 }
-// function EXP1(){
-//     console.log("status",t[i].CP,"IN EXP")
-//     if(find(EXP11,t[i].CP)){
-//         if(T()){
-//             if(E_DASH()){
-//                 console.log("status",t[i].CP,"ret true from EXP1",syntax)
-//                 return true
-//             }
-//         }
-//     }
-//     return false
-// }
-// function E_DASH(){
-//     if(t[i].CP==="||"){
-//         i++
-//         if(N_Q()){
-//             if(EXP1()){
-//                 return true
-//             }
-//         }
-//     }
-//     else if(find(E_DASH1,t[i].CP)){
-//         return true
-//     }
-//     return false
-// }
-// function T(){
-//     if(find(EXP11,t[i].CP)){
-//         if(S()){
-//             if(T_DASH()){
-//                 return true
-//             }
-//         }
-//     }
-//     return false
-// }
-// function T_DASH(){
-//     if(t[i].CP==="&&"){
-//         i++
-//         if(N_Q()){
-//             if(EXP1()){
-//                 return true
-//             }
-//         }
-//     }
-//     else if(find(T_DASH1,t[i].CP)){
-//         return true
-//     }
-//     return false
-// }
-// function S(){
-//     if(find(EXP11,t[i].CP)){
-//         if(R()){
-//             if(S_DASH()){
-//                 return true
-//             }
-//         }
-//     }
-//     return false
-// }
-// function S_DASH(){
-//     if(t[i].CP==="ROP"){
-//         i++
-//         if(N_Q()){
-//             if(EXP1()){
-//                 return true
-//             }
-//         }
-//     }
-//     else if(find(S_DASH1,t[i].CP)){
-//         return true
-//     }
-//     return false
-// }
-// function R(){
-//     if(find(EXP11,t[i].CP)){
-//         if(Q()){
-//             if(R_DASH()){
-//                 return true
-//             }
-//         }
-//     }
-//     return false
-// }
-// function R_DASH(){
-//     if(t[i].CP==="PM"){
-//         i++
-//         if(N_Q()){
-//             if(R()){
-//                 return true
-//             }
-//         }
-//     }
-//     else if(find(R_DASH1,t[i].CP)){
-//         return true
-//     }
-//     return false
-// }
-// function Q(){
-//     if(find(EXP11,t[i].CP)){
-//         if(Q_DASH()){
-//             return true
-//         }
-//     }
-//     return false
-// }
-
-// function Q_DASH(){
-//     if(t[i].CP==="MDM"){
-//         i++
-//         if(N_Q()){
-//             if(Q_DASH()){
-//                 return true
-//             }
-//         }
-//     }
-//     else if(find(Q_DASH1,t[i].CP)){
-//         console.log("Q_DASH1 true",t[i].CP)
-//         return true
-//     }
-//     return false
-// }
-// function N_Q(){ 
-//     console.log("status",t[i].CP,t[i].VP,"N_Q")
-//     if(find(E1,t[i].CP)){
-//         if(E()){
-//             return true
-//         }
-//     }
-//     else if(t[i].CP==="ID"){
-//         if(F()){
-//             return true
-//         }
-//     }
-//     return false
-// }
 function NEW_ASGN(){
     if(t[i].CP==="inc_dec"){
         i++
@@ -1915,3 +1958,140 @@ function N_ARR2(){
     }
     return false
 }
+
+// function EXP1(){
+//     console.log("status",t[i].CP,"IN EXP")
+//     if(find(EXP11,t[i].CP)){
+//         if(T()){
+//             if(E_DASH()){
+//                 console.log("status",t[i].CP,"ret true from EXP1",syntax)
+//                 return true
+//             }
+//         }
+//     }
+//     return false
+// }
+// function E_DASH(){
+//     if(t[i].CP==="||"){
+//         i++
+//         if(N_Q()){
+//             if(EXP1()){
+//                 return true
+//             }
+//         }
+//     }
+//     else if(find(E_DASH1,t[i].CP)){
+//         return true
+//     }
+//     return false
+// }
+// function T(){
+//     if(find(EXP11,t[i].CP)){
+//         if(S()){
+//             if(T_DASH()){
+//                 return true
+//             }
+//         }
+//     }
+//     return false
+// }
+// function T_DASH(){
+//     if(t[i].CP==="&&"){
+//         i++
+//         if(N_Q()){
+//             if(EXP1()){
+//                 return true
+//             }
+//         }
+//     }
+//     else if(find(T_DASH1,t[i].CP)){
+//         return true
+//     }
+//     return false
+// }
+// function S(){
+//     if(find(EXP11,t[i].CP)){
+//         if(R()){
+//             if(S_DASH()){
+//                 return true
+//             }
+//         }
+//     }
+//     return false
+// }
+// function S_DASH(){
+//     if(t[i].CP==="ROP"){
+//         i++
+//         if(N_Q()){
+//             if(EXP1()){
+//                 return true
+//             }
+//         }
+//     }
+//     else if(find(S_DASH1,t[i].CP)){
+//         return true
+//     }
+//     return false
+// }
+// function R(){
+//     if(find(EXP11,t[i].CP)){
+//         if(Q()){
+//             if(R_DASH()){
+//                 return true
+//             }
+//         }
+//     }
+//     return false
+// }
+// function R_DASH(){
+//     if(t[i].CP==="PM"){
+//         i++
+//         if(N_Q()){
+//             if(R()){
+//                 return true
+//             }
+//         }
+//     }
+//     else if(find(R_DASH1,t[i].CP)){
+//         return true
+//     }
+//     return false
+// }
+// function Q(){
+//     if(find(EXP11,t[i].CP)){
+//         if(Q_DASH()){
+//             return true
+//         }
+//     }
+//     return false
+// }
+
+// function Q_DASH(){
+//     if(t[i].CP==="MDM"){
+//         i++
+//         if(N_Q()){
+//             if(Q_DASH()){
+//                 return true
+//             }
+//         }
+//     }
+//     else if(find(Q_DASH1,t[i].CP)){
+//         console.log("Q_DASH1 true",t[i].CP)
+//         return true
+//     }
+//     return false
+// }
+// function N_Q(){ 
+//     console.log("status",t[i].CP,t[i].VP,"N_Q")
+//     if(find(E1,t[i].CP)){
+//         if(E()){
+//             return true
+//         }
+//     }
+//     else if(t[i].CP==="ID"){
+//         if(F()){
+//             return true
+//         }
+//     }
+//     return false
+// }

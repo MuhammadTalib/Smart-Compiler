@@ -38,7 +38,7 @@ export const isStringConstant = (word) => {
     return a
 }
 export const isIntConstant = (word) => {
-    var a = /^[+|-]\d$/.test(word)
+    var a = /^[+|-]?\d$/.test(word)
     return a
 }
 export const isFloatConstant = (word) => {
