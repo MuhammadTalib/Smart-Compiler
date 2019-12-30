@@ -9,7 +9,6 @@ export const lexicalAnalyzer = (text) => {
     var i, temp,linenum=0,tokenSet=[]
     if(text) for (i = 0; i < text.length;) { 
         temp = wordBreaker(text, i,linenum)
-        console.log("temo",temp.word)
         if(temp!==undefined){
             i = temp.index
             linenum=temp.lineNum

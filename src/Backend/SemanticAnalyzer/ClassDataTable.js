@@ -1,5 +1,5 @@
 export default class ClassData{
-    constructor(N,T,AM,TM){
+    constructor(N,T,AM,TM,PL){
         this.Name=N
         this.Type=T
         this.AM=AM

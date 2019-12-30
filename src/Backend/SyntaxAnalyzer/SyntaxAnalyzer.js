@@ -188,16 +188,16 @@ function WHILE(scope){
                if(!Tr){ console.log("Condition Type Mismatch at line", t[i].line)}
                if(t[i].CP===")"){
                    i++
-                   if(BODY(scope)){
+                   if(BODY(scope,null)){
                        return true
                    }
                } 
             }
         }
     }
-    return syntaxFalse()
+    return false
 }
-function FOR(){
+function FOR(scope){
     if(t[i].CP==="for"){
         i++
         if(t[i].CP==="("){
@@ -315,15 +315,17 @@ function C3(){
     }
     return false
 }
-function DO_WHILE(){
+function DO_WHILE(scope){
     if(t[i].CP==="do"){
         i++
-        if(BODY()){
+        if(BODY(scope,null)){
             if(t[i].CP==="while"){
                 i++
                 if(t[i].CP==="("){
                     i++
-                    if(EXP()){
+                    var Texp=React.createRef()
+                    if(EXP(Texp,scope)){
+                        if(!ST.compatibility(Texp.current,"bool","="))
                         if(t[i].CP===")"){
                             i++
                             return true
@@ -335,13 +337,56 @@ function DO_WHILE(){
     }
     return syntaxFalse()
 }
-function CONST_DT(){
+
+function IF_ELSE(scope){
+    if(t[i].CP==="if"){
+        i++
+        if(t[i].CP==="("){
+            i++
+            var T = React.createRef()
+            if(EXP(T, scope)){
+                if(!ST.compatibility(T.current,"bool","="))
+                if(t[i].CP===")"){
+                    i++
+                    if(BODY(scope,null)){
+                        if(ELSE(scope)){
+                            return true
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return syntaxFalse()
+}
+function ELSE(scope){
+    if(t[i].CP==="else"){
+        i++
+        if(BODY()){
+            return true
+        }
+    }
+    else if(find(ELSE1,t[i].CP)){
+        return true
+    }
+    return false
+}
+function CONST_DT(scope,ref=null){
     if(t[i].CP==="const"){
         i++
         if(t[i].CP==="ID"){
+            var N=t[i].VP
+            
             i++
-            if(CONST_DT1()){
+            var Tr=React.createRef()
+            if(CONST_DT1(Tr,scope)){
+                if(ref===null && !ST.insertST(N,Tr.current,scope)){
+                    console.log("Redeclaration Error | variable ",N," is already defined")
+                }else if(ref!==null && !ST.insertCDT(N,Tr.current,"public",null,ref)){
+                    console.log("Redeclaration Error | variable ",N," is already defined in class")
+                }
                 if(NEXT_CONST_DT()){
+                    console.log("REturnng true")
                     return true
                 }
             }
@@ -349,24 +394,39 @@ function CONST_DT(){
     }
     return syntaxFalse()
 }
-function CONST_DT1(){
+function CONST_DT1(Tr,scope){
     if(t[i].CP==="AOR"||t[i].CP==="AOP"){
         i++
-        if(CONST_DT2()){
+        if(CONST_DT2(Tr,scope)){
             return true
         }
     }
     return false
 }
-function CONST_DT2(){
+function CONST_DT2(Tr,scope){
     if(t[i].CP==="new"){
         i++
         if(t[i].CP==="ID"){
+            var N=t[i].VP
+            var classa=ST.lookupCT(N)
+            if(!classa){
+                console.log("Class Not Defined")
+            }
+            else{
+                Tr.current=classa.Name
+            }
             i++
             if(t[i].CP==="("){
                 i++
-                if(CALLING_PARAM()){
+                var PL=React.createRef()
+                if(CALLING_PARAM(PL,scope)){
                     if(t[i].CP===")"){
+                        if(classa ){
+                            var TS=ST.lookupCDT_Functions("constructor",PL.current,classa.ref,"public")
+                            if(!TS){
+                                console.log("Constructor Not defined correctly")
+                            }
+                        }
                         i++
                         return true
                     }
@@ -374,7 +434,6 @@ function CONST_DT2(){
             }
         }
     }
-    
     else if(t[i].CP==="("){
         i++
         if(DEC_PARAMS()){
@@ -425,17 +484,19 @@ function CONST_DT2(){
     return false
 }
 function NEXT_CONST_DT(){
+    console.log("in next const DT",t[i].CP)
     if(t[i].CP===","){
         if(DEC_PARAMS()){
             return true
         }
     }
     else if(find(NextConstDT1,t[i].CP)){
+        console.log("Returnning true")
         return true
     }
     return false
 }
-function GTSWID(){
+function GTSWID(scope){
     if(t[i].CP==="ID"){
         i++
         if(INIT_VALUE()){
@@ -598,38 +659,6 @@ function INC_DEC_PRE(){
     }
     return syntaxFalse()
 }
-function IF_ELSE(){
-    if(t[i].CP==="if"){
-        i++
-        if(t[i].CP==="("){
-            i++
-            var T = React.createRef()
-            if(EXP(T, S)){
-                if(t[i].CP===")"){
-                    i++
-                    if(BODY()){
-                        if(ELSE()){
-                            return true
-                        }
-                    }
-                }
-            }
-        }
-    }
-    return syntaxFalse()
-}
-function ELSE(){
-    if(t[i].CP==="else"){
-        i++
-        if(BODY()){
-            return true
-        }
-    }
-    else if(find(ELSE1,t[i].CP)){
-        return true
-    }
-    return false
-}
 function SWITCH_CASE(){
     if(t[i].CP==="switch"){
         i++
@@ -699,69 +728,79 @@ function INNER_CASE_VALUE(){
     }
     return false
 }
-function CALLING_PARAM(){
+function CALLING_PARAM(PL,scope){
     if(find(CALLING_PARAMS1,t[i].CP)){
-        if(CP_VALUE()){
+        if(CP_VALUE(PL,scope)){
             return true
         }
     }
     return false
 }
-function CP_VALUE(){
+function CP_VALUE(PL,scope){
+    PL.current=""
     if(t[i].CP===")"){
+        PL.current="void"
         return true
     }
     else if(find(FirstOfINIT_VALUE_2,t[i].CP)){
-        if(CP_VALUE2()){
+        if(CP_VALUE2(PL,scope)){
             return true
         }
     }
     return false
 }
-function CP_VALUE2(){
+function CP_VALUE2(PL,scope){
     if(find(FirstOfINIT_VALUE_2,t[i].CP)){
-        if(INIT_VALUE_2()){
-            if(NEXT_CPVALUE()){
+        var T=React.createRef()
+        if(INIT_VALUE_2(T,scope)){
+            PL.current+=T.current
+            if(NEXT_CPVALUE(PL,scope)){
                 return true
             }
         }
     }
     return false
 }
-function NEXT_CPVALUE(){
+function NEXT_CPVALUE(PL,scope){
     if(t[i].CP===")"){
         return true
     }
     else if(t[i].CP===","){
         i++
-        if(CP_VALUE2()){
+        PL.current+=","
+        if(CP_VALUE2(PL,scope)){
             return true
         }
     }
     return false
 }
-function BODY(){
+function BODY(scope,RT){
+    scope=ST.createScope()
     if(t[i].CP===";"){
         i++
+        
+        ST.deleteScope()
         return true
     }
-    else if(SST()){
+    else if(SST(scope,RT)){
+        ST.deleteScope()
         return true
     }
     else if(t[i].CP==="{"){
         i++
-        if(MST()){
+        if(MST(scope,RT)){
             if(t[i].CP==="}"){
                 i++
+                ST.deleteScope()
                 return true
             }
         }
     }
 }
-function RETURN(){
+function RETURN(scope,RT){
     if(t[i].CP==="return"){
         i++
-        if(INIT_VALUE_2()){
+        if(INIT_VALUE_2(RT,scope)){
             return true
         }
     }
@@ -778,19 +817,31 @@ function FUNCTION_DEC(){
 }
 function FUNC_DEF_1(){
     if(t[i].CP==="ID"){
+        var N=t[i].VP
         i++
+        var scope=ST.createScope()
         if(t[i].CP==="("){
             i++
             inFuncP=true
-            if(DEC_PARAMS()){
+            var PL=React.createRef()
+            if(DEC_PARAMS(PL,scope)){
                 inFuncP=false
                 if(t[i].CP===")"){
                     i++
                     if(t[i].CP==="{"){
                         i++
-                        if(MST()){
+                        var RT=React.createRef()
+                        if(MST(scope,RT)){
+                            if(!RT.current){
+                                RT.current="void"
+                            }
+                            var T=PL.current+"->"+RT.current
                             if(t[i].CP==="}"){
                                 i++
+                                if(!ST.insertCT(N,T,null,null)){
+                                    console.log("Redeclaration Error | Redeclaring Function ",N," at line ",t[i].line) 
+                                }
+                                ST.deleteScope()
                                 return true
                             }
                         }
@@ -841,7 +892,8 @@ function CLASS_STRUCT(N){
 }
 function CLASS_BODY(N,PL){
     var ref=React.createRef()
-    console.log("inserting",N, "parent", PL , ref)
+    ref.current=[]
+    console.log("inserting",N, "parent", PL ,"ref", ref.current)
     if(!ST.insertCT(N, "class", PL , ref)){
         console.log("Redeclaration Error | Name ",N," is Already in used")
     }
@@ -860,6 +912,7 @@ function CLASS_MST(ref) {
     if(find(CLASS_MST1,t[i].CP)){
         if(CLASS_CONSTRUCTOR(ref)){
             if(CLASS_ST(ref)){
+                console.log("CLASS ST TRUE")
                 if(CLASS_MST(ref)){
                     return true
                 }
@@ -873,16 +926,22 @@ function CLASS_MST(ref) {
 }
 function CLASS_CONSTRUCTOR(ref){
     if(t[i].CP==="constructor"){
+        var scope=ST.createScope()
+        var PL=React.createRef()
         i++
         if(t[i].CP==="("){
             i++
-            if(DEC_PARAMS()){
+            if(DEC_PARAMS(PL,scope)){
+                if(!ST.insertCDT("constructor",PL.current+"->void","public",null,ref)){
+                    console.log("Redeclaring Constructor")
+                }
                 if(t[i].CP===")"){
                     i++
                     if(t[i].CP==="{"){
                         i++
-                        if(CONSTRUCTOR_BODY()){
+                        if(CONSTRUCTOR_BODY(scope,ref)){
                             if(t[i].CP==="}"){
+                                ST.deleteScope()
                                 i++
                                 return true
                             }
@@ -898,41 +957,49 @@ function CLASS_CONSTRUCTOR(ref){
     }
     return false
 }
-function CONSTRUCTOR_BODY(){
+function CONSTRUCTOR_BODY(scope,ref){
     if(t[i].CP==="}"){
         return true
     }
     else if(find(SST11,t[i].CP) || t[i].CP==="this"){
-        if(C_B_I()){
-            if(SST1()){
+        if(C_B_I(scope,ref)){
+            if(SST1(scope,ref)){
                 return true
             }
         }
     }
     return false
 }
-function C_B_I(){
+function C_B_I(scope,ref){
     if(t[i].CP==="this"){
-        if(THIS_VAR()){
+        if(THIS_VAR(scope,ref)){
             return true
         }
     }
     else if(find(SST11,t[i].CP)){
-        if(SST1()){
+        var RT=React.createRef()
+        if(SST1(scope,RT,ref)){
             return true
         }
     }
 }
-function THIS_VAR(){
+function THIS_VAR(scope,ref){
     if(t[i].CP==="this"){
         i++
         if(t[i].CP==="."){
             i++
             if(t[i].CP==="ID"){
+                var N=t[i].VP
+                var T=ST.lookupCDT(N,ref)
                 i++
                 if(t[i].CP==="AOR"){
                     i++
-                    if(DEC2()){
+                    var Tr=React.createRef()
+                    if(DEC2(Tr,scope,ref)){
+                        var Ta=ST.compatibility(T,Tr.current,"=")
+                        if(!Ta){
+                            console.log("Type Mismatch ",Ta," can't be assigned to ",Tr.current)
+                        }
                         return true
                     }
                 }
@@ -941,47 +1008,67 @@ function THIS_VAR(){
     }
     return false
 }
-function CLASS_ST(){
+function CLASS_ST(ref){
+    console.log("IN CLASS ST",t[i].CP,t[i].CP)
     if(t[i].CP==="ID"){
-        if(CLASS_FUNC()){
+        if(CLASS_FUNC(ref)){
             return true
         }
     }
     else if(t[i].CP==="DT"){
-        if(DEC()){
+        if(DEC(null,ref)){
             return true
         }
     }
     else if(t[i].CP==="protected"){
-        if(PROTECTED()){
+        if(PROTECTED(ref)){
             return true
         }
     }
-    return true
+    else if(t[i].CP==="const"){
+        console.log("bforn const dt in class")
+        if(CONST_DT(null,ref)){
+            console.log("CONST_DET TRUE")
+            return true
+        }
+    }
+    else if(t[i].CP==="}"){
+        return true
+    }
+    return false
 }
-function CLASS_FUNC(){
+function CLASS_FUNC(ref){
     if(t[i].CP==="ID"){
+        var N=t[i].VP
         i++
-        if(FUNC_DEF()){
+        if(FUNC_DEF(ref,N)){
             return true
         }
     }
     return false
 }
-function FUNC_DEF(){
+function FUNC_DEF(ref,N){
     if(t[i].CP==="AOR"){
         i++
         if(t[i].CP==="("){
+            var scope=ST.createScope()
             i++
-            if(DEC_PARAMS()){
+            var PL=React.createRef()
+            if(DEC_PARAMS(PL,scope)){
                 if(t[i].CP===")"){
                     i++
                     if(t[i].CP==="=>"){
                         i++
                         if(t[i].CP==="{"){
                             i++
-                            if(MST()){
+                            var RT=React.createRef()
+                            if(MST(scope,RT)){
+                                if(!RT.current){RT.current="void"}
                                 if(t[i].CP==="}"){
+                                    if(!ST.insertCDT(N, PL.current+"->"+RT.current, "public", null, ref )){ 
+                                        console.log("Redeclaration Error | Redeclaring Function ",N," at line ",t[i].CP) 
+                                    }
+                                    ST.deleteScope()
                                     i++
                                     return true
                                 }
@@ -994,13 +1081,20 @@ function FUNC_DEF(){
     }
     else if(t[i].CP==="("){
         i++
-        if(DEC_PARAMS()){
+        PL=React.createRef()
+        if(DEC_PARAMS(PL,scope)){
             if(t[i].CP===")"){
                 i++
                 if(t[i].CP==="{"){
                     i++
-                    if(MST()){
+                    RT=React.createRef()
+                    if(MST(scope,RT)){
+                        if(!RT.current){RT.current="void"}
                         if(t[i].CP==="}"){
+                            if(!ST.insertCDT(N, PL.current+"->"+RT.current, "public", null, ref )){ 
+                                console.log("Redeclaration Error | Redeclaring Function ",N," at line ",t[i].CP) 
+                            }
+                            ST.deleteScope()
                             i++
                             return true
                         }
@@ -1011,28 +1105,80 @@ function FUNC_DEF(){
     }
     return false
 }
-function DEC_PARAMS(){
+function DEC_PARAMS(PL,scope){
     if(t[i].CP==="DT"){
+        var T=t[i].VP
         i++
         if(t[i].CP==="ID"){
+            var N=t[i].VP
+            PL.current=T
             i++ 
-            if(DEC1()){
-                if(NEXT_PARAMS()){
+            if(DEC1(T,scope,null)){
+                if(!ST.insertST(N,T,scope)){
+                    console.log("parameter Redeclaraion at line ",t[i].line)
+                }
+                if(NEXT_PARAMS(PL,scope)){
                     return true
                 }
             }
         }
     }
     else if(t[i].CP==="ID"){
+        N=t[i].VP
+        PL.current="const"
         i++
         if(CONST_DEC_PARAM()){
-            if(NEXT_PARAMS()){
+            if(NEXT_PARAMS(PL,scope)){
                 return true
             }
         }
     }
     else if(t[i].CP===")"){
+        PL.current="void"
         return true
+    }
+    return false
+}
+
+function NEXT_PARAMS(PL,scope){
+    if(t[i].CP===","){
+        i++
+        if(NEXT_DEC_PARAMS(PL,scope)){
+            return true
+        }
+    }
+    else if(t[i].CP===")"){
+        return true
+    }
+    return false
+}
+function NEXT_DEC_PARAMS(PL,scope){
+    if(t[i].CP==="DT"){
+        var T=t[i].VP
+        i++
+        if(t[i].CP==="ID"){
+            var N=t[i].VP
+            PL.current+=","+T
+            i++ 
+            if(DEC1(T,scope,null)){
+                if(!ST.insertST(N,T,scope)){
+                    console.log("parameter Redeclaraion at line ",t[i].line)
+                }
+                if(NEXT_PARAMS(PL,scope)){
+                    return true
+                }
+            }
+        }
+    }
+    else if(t[i].CP==="ID"){
+        N=t[i].VP
+        PL.current+=",const"
+        i++
+        if(CONST_DEC_PARAM()){
+            if(NEXT_PARAMS(PL,scope)){
+                return true
+            }
+        }
     }
     return false
 }
@@ -1044,40 +1190,6 @@ function CONST_DEC_PARAM(){
         if(CONST_DT1()){
             return true
         }
-    }
-    return false
-}
-function NEXT_DEC_PARAMS(){
-    if(t[i].CP==="DT"){
-        i++
-        if(t[i].CP==="ID"){
-            i++ 
-            if(DEC1()){
-                if(NEXT_PARAMS()){
-                    return true
-                }
-            }
-        }
-    }
-    else if(t[i].CP==="ID"){
-        i++
-        if(CONST_DEC_PARAM()){
-            if(NEXT_PARAMS()){
-                return true
-            }
-        }
-    }
-    return false
-}
-function NEXT_PARAMS(){
-    if(t[i].CP===","){
-        i++
-        if(NEXT_DEC_PARAMS()){
-            return true
-        }
-    }
-    else if(t[i].CP===")"){
-        return true
     }
     return false
 }
@@ -1144,16 +1256,21 @@ function PRO_BODY(){
         }
     }
 }
-function DEC(scope){
+function DEC(scope,ref=null){
     if(t[i].CP==="DT"){
         var T = t[i].VP
         i++
         if(t[i].CP==="ID"){
             var N = t[i].VP
             i++
-            if(DEC1(T,scope)){ 
-                if(!ST.insertST(N,T,scope)){
-                    console.log("Redeclaration Error at Line :", t[i].line,"Variable",N)
+            if(DEC1(T,scope,ref)){ 
+                if(ref!==null){
+                    if(!ST.insertCDT(N,T,"public",null,ref)){
+                        console.log("Redeclaration Error | Class Attribute at Line :", t[i].line,"Variable",N)
+                    }
+                }
+                else if(!ST.insertST(N,T,scope)){
+                    console.log("Redeclaration Error | Variable " ,N," at Line :", t[i].line)
                 }
                 if(NEXT_DEC()){
                     return true
@@ -1161,59 +1278,84 @@ function DEC(scope){
             }
         }
     }
-    return syntaxFalse()
+    return false
 }
-function DEC1(Tl,scope){
+function DEC1(Tl,scope,ref){
     if(find(DEC11,t[i].CP) ){
         return true
     }
     else if(t[i].CP==="AOR"){
         var O=t[i].VP
         i++
+        
+        console.log("AOR",t[i].CP)
         var Tr=React.createRef()
-        if(DEC2(Tr,scope)){
-            console.log("Tr",Tr,Tl)
+        if(DEC2(Tr,scope,ref)){
             if(!ST.compatibility(Tl,Tr.current,O)){
-                console.log("Can't Assign variable to mismatch type")
+                console.log("Mismatch Assigning Type | Can't Assign ",Tl," variable to ",Tr.current," type")
             }
             return true
         }
     }
     return false
 }
-function DEC2(T,scope) {
+function DEC2(T,scope,ref) {
+    console.log("ref",ref)
     if(t[i].CP==="ID"){
         var N=t[i].VP
         var CN=React.createRef()
+        CN.current=null
         i++
         if(DEC3(N,T,scope,CN)){
             return true
         }
     }
-    else if(EXP(T,scope)){
+    else if(EXP(T,scope,ref)){
         return true
     }
     return false
 }
 function DEC3(N,T,scope,CN){
     if(find(DEC11,t[i].CP) ){
-        T.current=ST.lookupST(N)
+        if(CN.current!==null){
+            T.current=ST.lookupCDT(N,CN).Type
+            if(!T.current){
+                console.log("Undeclared Variable | ",N," not found at line ",t[i].line)
+            }
+        }
+        else{ 
+            T.current=ST.lookupST(N)
+            if(!T.current){
+                console.log("Undeclared Variable | ",N," not found at line ",t[i].line)
+            }
+        }
         return true
     }
     else if(t[i].CP==="[" || t[i].CP==="." || t[i].CP==="(" || t[i].CP==="$"){
         var Tl=React.createRef()
         if(MERGED_INIT(N,Tl,scope,CN)){
+            console.log("After Merged Ijnit",N,Tl,scope,CN)
             if(EXP1(Tl,T,scope)){
                 return true
             }
         }
     }
     else if(find(EXP11,t[i].CP)){
+        console.log("here")
         Tl=React.createRef()
-        Tl.current=ST.lookupST(N)
-        console.log("yesssss")
-        if(EXP1(Tl,T,scope)){
-            console.log("pessed")
+        if(CN==null){
+            Tl.current=ST.lookupST(N)
+            if(!Tl.current){
+                console.log("Undeclared Variable | ",N," not found at line ",t[i].line)
+            }
+        }
+        else{
+            Tl.current=ST.lookupCDT(N,CN)
+            if(!Tl.current){
+                console.log("Undeclared Variable | ",N," not found at line",t[i].line)
+            }
+        }
+        if(EXP1(Tl,T,scope,null)){
             return true
         }
     }
@@ -1242,7 +1384,68 @@ function MERGED_INIT(N,T,scope,CN){
     }
     return false
 }
+function MOV(N,scope,T,CN){
+    if(t[i].CP==="."){
+        if(CN.current===null){
+            CN.current=ST.lookupST(N)
+        }else{
+            CN.current=ST.lookupCDT(N,CN)
+        }
+        i++
+        if(t[i].CP==="ID"){
+            var N=t[i].VP
+            i++
+            if(MERGED1(N,scope,T,CN)){
+                return true
+            }
+        }
+    }
+    else if(t[i].CP==="("){
+        i++
+        var PL=React.createRef()
+        if(CALLING_PARAM(PL)){
+            if(t[i].CP===")"){
+                CN.current=ST.lookupFT(N,PL,CN)
+                if(CN.current===null){
+                    console.log("Function ",N," is not defined at line ",t[i].line)
+                }
+                i++
+                if(MERGED(N,scope,T,CN)){
+                    return true
+                }
+            }
+        }
+    }
+    return false
+}
 
+function MERGED1(N,scope,T,CN){
+    if(find(EXP11,t[i].CP)){
+        if(CN.current===null){
+            CN.current=ST.lookupST(N)
+        }else{
+            var ref=React.createRef()
+            ref= ST.lookupCT(CN.current).ref
+            CN.current=ST.lookupCDT(N,ref)
+        }
+        if(EXP1(CN,T,scope)){
+            return true
+        }
+    }
+    else if(find(FirstOfMergedInit,t[i].CP)){
+        if(MERGED_INIT(N,T,scope,CN)){
+            if(DEC1()){
+                return true
+            }
+        }
+    }
+    else if(t[i].CP==="AOR" || t[i].CP==="AOP"){
+        if(DEC1()){
+            return true
+        }
+    }
+    return false
+}
 function M_N_ARR(N,scope,T,CN){
     if(find(FirstOfMOV, t[i].CP)){
         if(MOV(N,scope,T,CN)){
@@ -1290,42 +1493,6 @@ function M_N_ARR2(N,scope,T,CN){
     }
     return false
 }
-function MOV(N,scope,T,CN){
-    if(t[i].CP==="."){
-        if(CN.current===null){
-            CN.current=ST.lookupST(N)
-        }else{
-            CN.current=ST.lookupCDT(N,CN)
-        }
-        i++
-        if(t[i].CP==="ID"){
-            N=t[i].VP
-            console.log("N",N)
-            i++
-            if(MERGED1(N,scope,T,CN)){
-                console.log("CN=",CN.current)
-                return true
-            }
-        }
-    }
-    else if(t[i].CP==="("){
-        i++
-        var PL=React.createRef()
-        if(CALLING_PARAM(PL)){
-            if(t[i].CP===")"){
-                CN.current=ST.lookupFT(N,PL,CN)
-                if(CN.current===null){
-                    console.log("Function ",N," is not defined at line ",t[i].line)
-                }
-                i++
-                if(MERGED(N,scope,T,CN)){
-                    return true
-                }
-            }
-        }
-    }
-    return false
-}
 function MERGED(N,scope,T,CN){
     if(find(EXP11,t[i].CP)){
         
@@ -1338,33 +1505,6 @@ function MERGED(N,scope,T,CN){
             if(DEC1()){
                 return true
             }
-        }
-    }
-    return false
-}
-function MERGED1(N,scope,T,CN){
-    if(find(EXP11,t[i].CP)){
-        if(CN.current===null){
-            CN.current=ST.lookupST(N)
-        }else{
-            CN.current=ST.lookupCDT(N,CN)
-        }
-        if(EXP1(CN,T,scope)){
-            
-            console.log("CN T ",CN,T)
-            return true
-        }
-    }
-    else if(find(FirstOfMergedInit,t[i].CP)){
-        if(MERGED_INIT(N,T,scope,CN)){
-            if(DEC1()){
-                return true
-            }
-        }
-    }
-    else if(t[i].CP==="AOR" || t[i].CP==="AOP"){
-        if(DEC1()){
-            return true
         }
     }
     return false
@@ -1395,28 +1535,28 @@ function NEXT_DEC(){
     }
     return false
 }
-function EXP(T, scope){
+function EXP(T, scope,ref){
     if(t[i].CP === "ID" || find(E1,t[i].CP)){
         var Tl=React.createRef()
-        if(VAL(Tl,scope)){
-            if(EXP1(Tl,T,scope)){
+        if(VAL(Tl,scope,ref)){
+            if(EXP1(Tl,T,scope,ref)){
                 return true
             }
         }
     }
     return false
 }
-function EXP1(Tl,T,scope){
+function EXP1(Tl,T,scope,ref){
     if(find(EXP12,t[i].CP)){
         T.current=Tl.current
         return true
     }
-    if(find(EXP11,t[i].CP)){
-        if(Q_DASH(Tl,T,scope)){
-            if(R_DASH(Tl,T,scope)){
-                if(S_DASH(Tl,T,scope)){
-                    if(T_DASH(Tl,T,scope)){
-                        if(E_DASH(Tl,T,scope)){
+    else if(find(EXP11,t[i].CP)  || t[i].CP==="(") {
+        if(Q_DASH(Tl,T,scope,ref)){
+            if(R_DASH(Tl,T,scope,ref)){
+                if(S_DASH(Tl,T,scope,ref)){
+                    if(T_DASH(Tl,T,scope,ref)){
+                        if(E_DASH(Tl,T,scope,ref)){
                             return true
                         }
                     }
@@ -1426,15 +1566,15 @@ function EXP1(Tl,T,scope){
     }
     return false
 }
-function E_DASH(Tl,T,scope){
+function E_DASH(Tl,T,scope,ref){
     if(t[i].CP==="||"){
         var O=t[i].VP
         i++
         var Tr=React.createRef()
-        if(L(Tr,scope)){
+        if(L(Tr,scope,ref)){
             var Ta=React.createRef()
             Ta.current=ST.compatibility(Tl.current,Tr.current,O)
-            if(E_DASH(Ta,T,scope)){
+            if(E_DASH(Ta,T,scope,ref)){
                 return true
             }
         }
@@ -1445,11 +1585,11 @@ function E_DASH(Tl,T,scope){
     }
     return false
 }
-function L(T,scope){
-    if(find(EXP11,t[i].CP)){
+function L(T,scope,ref){
+    if(find(EXP11,t[i].CP) || t[i].CP==="("){
         var Tl=React.createRef()
-        if(S(Tl,scope)){
-            if(T_DASH(Tl,T,scope)){
+        if(S(Tl,scope,ref)){
+            if(T_DASH(Tl,T,scope,ref)){
                 return true
             }
         }
@@ -1457,15 +1597,15 @@ function L(T,scope){
     return false
 }
 
-function T_DASH(Tl,T,scope){
+function T_DASH(Tl,T,scope,ref){
     if(t[i].CP==="&&"){
         var O=t[i].VP
         i++
         var Tr=React.createRef()
-        if(S(Tr,scope)){
+        if(S(Tr,scope,ref)){
             var Ta=React.createRef()
             Ta.current=ST.compatibility(Tl.current,Tr.current,O)
-            if(T_DASH(Ta,T,scope)){
+            if(T_DASH(Ta,T,scope,ref)){
                 return true
             }
         }
@@ -1476,11 +1616,11 @@ function T_DASH(Tl,T,scope){
     }
     return false
 }
-function S(T,scope){
-    if(find(EXP11,t[i].CP)){
+function S(T,scope,ref){
+    if(find(EXP11,t[i].CP) || t[i].CP==="("){
         var Tl=React.createRef()
-        if(R(Tl,scope)){
-            if(S_DASH(Tl,T,scope)){
+        if(R(Tl,scope,ref)){
+            if(S_DASH(Tl,T,scope,ref)){
                 return true
             }
         }
@@ -1488,15 +1628,15 @@ function S(T,scope){
     return false
 }
 
-function S_DASH(Tl,T,scope){
+function S_DASH(Tl,T,scope,ref){
     if(t[i].CP==="ROP"){
         var O=t[i].VP
         i++
         var Tr=React.createRef()
-        if(R(Tr)){
+        if(R(Tr,scope,ref)){
             var Ta=React.createRef()
             Ta.current=ST.compatibility(Tl.current,Tr.current,O)
-            if(S_DASH(Ta,T,scope)){
+            if(S_DASH(Ta,T,scope,ref)){
                 return true
             }
         }
@@ -1507,11 +1647,11 @@ function S_DASH(Tl,T,scope){
     }
     return false
 }
-function R(T,scope){
-    if(find(EXP11,t[i].CP)){
+function R(T,scope,ref){
+    if(find(EXP11,t[i].CP) || t[i].CP==="("){
         var Tl=React.createRef()
         if(Q(Tl,scope)){
-            if(R_DASH(Tl,T,scope)){
+            if(R_DASH(Tl,T,scope,ref)){
                 return true
             }
         }
@@ -1519,15 +1659,15 @@ function R(T,scope){
     return false
 }
 
-function R_DASH(Tl,T,scope){
+function R_DASH(Tl,T,scope,ref){
     if(t[i].CP==="PM"){
         var O=t[i].VP
         i++
         var Tr=React.createRef()
-        if(Q(Tr,scope)){
+        if(Q(Tr,scope,ref)){
             var Ta=React.createRef()
             Ta.current=ST.compatibility(Tl.current,Tr.current,O)
-            if(R_DASH(Ta,T,scope)){
+            if(R_DASH(Ta,T,scope,ref)){
                 return true
             }
         }
@@ -1538,26 +1678,26 @@ function R_DASH(Tl,T,scope){
     }
     return false
 }
-function Q(T,scope){
-    if(find(EXP11,t[i].CP)){
+function Q(T,scope,ref){ 
+    if(find(EXP11,t[i].CP) || t[i].CP==="("){
         var Tl=React.createRef()
-        if(VAL(Tl)){
-            if(Q_DASH(Tl,T,scope)){
+        if(VAL(Tl,scope,ref)){
+            if(Q_DASH(Tl,T,scope,ref)){
                 return true
             }
         }
     }
     return false
 }
-function Q_DASH(Tl,T,scope){
+function Q_DASH(Tl,T,scope,ref){
     if(t[i].CP==="MDM"){
         var O=t[i].VP
         i++
         var Tr=React.createRef()
-        if(VAL(Tr)){
+        if(VAL(Tr,scope,ref)){
             var Ta=React.createRef()
             Ta.current=ST.compatibility(Tl.current,Tr.current,O)
-            if(Q_DASH(Ta,T,scope)){
+            if(Q_DASH(Ta,T,scope,ref)){
                 return true
             }
         }
@@ -1568,24 +1708,24 @@ function Q_DASH(Tl,T,scope){
     }
     return false
 }
-function VAL(T,S){
+function VAL(T,scope,ref){
     if(find(E1,t[i].CP)){
-        if(E(T,S)){
+        if(E(T,scope,ref)){
             return true
         }
     }
     else if(t[i].CP==="ID"){
-        if(F(T,S)){
+        if(F(T,scope,ref)){
             return true
         }
     }
     return false
 }
 
-function E(T,scope){
+function E(T,scope,ref){
     if(t[i].CP==="("){
         i++
-        if(EXP(T,scope)){
+        if(EXP(T,scope,ref)){
             if(t[i].CP===")"){
                 i++
                 return true
@@ -1594,13 +1734,13 @@ function E(T,scope){
     }
     else if(t[i].CP==="!"){
          i++
-        if(VAL(T,scope)){
+        if(VAL(T,scope,ref)){
             return true
         }
     }
     else if(t[i].CP==="inc_dec"){
         i++
-        if(F(T,scope)){
+        if(F(T,scope,ref)){
             return true
         }
         
@@ -1611,62 +1751,124 @@ function E(T,scope){
         return true
     }
     else if(t[i].CP==="this"){
+        ref.current.used="present"
         i++
         if(t[i].CP==="."){
             i++ 
-            if(F(T,scope)){
-                return true
+            if(t[i].CP==="ID"){
+                var N=t[i].VP
+                i++
+                if(NEW_ASGN(N, T, scope,ref,null)){
+                    return true
+                }
             }
         }
     }
     return false
 }
-function F(T, scope){
+function F(T, scope,ref){
     if(t[i].CP==="ID"){
-        var N=t[i].CP.VP
+        var N=t[i].VP
         i++
-        if(NEW_ASGN(N, T, scope)){
+        var CN=React.createRef()
+        if(NEW_ASGN(N, T, scope,ref,CN)){
             return true
         }
     }
 }
-function NEW_ASGN(){
+function NEW_ASGN(N,T,scope,ref,CN){
     if(t[i].CP==="inc_dec"){
+        var Tl
+        if(ref){ Tl=ST.lookupCDT(N,ref) }
+        else{ Tl=ST.lookupST(N) }
+        if(!Tl){
+            console.log("Undeclared Variable Found| Variable ",N ," Not defined")
+        }
         i++
+        T.current=ST.compatibility(Tl,"int","+")
+        if(!T.current){
+            console.log("Type Mismatch | increment decrement can't be applied on Type of ",Tl )
+        }
         return true
     }
     else if(find(N_INIT_VALUE1,t[i].CP)){
-        if(N_INIT_VALUE()){
+        if(N_INIT_VALUE(N,T,scope,ref,CN)){
             return true
         }
     }
     return false
 }
-function N_INIT_VALUE(){
+function N_INIT_VALUE(N,T,scope,ref,CN){
     if(find(FirstOfMOV,t[i].CP)){
-        if(OTHER_N_VALUE()){
+        if(OTHER_N_VALUE(N,T,scope,ref,CN)){
             return true
         }
     }
     else if(t[i].CP==="["){
+        var Tl=React.createRef()
+        if(CN){
+            Tl.current = ST.lookupCDT(N,CN) 
+            if(!Tl.current){
+                console.log("Undeclared Variable Found| Variable ",N ," Not defined",t[i].line)
+            }
+        }
+        else{
+            Tl.current=ST.lookupST(N)
+            if(!Tl.current){
+                console.log("Undeclared Variable Found| Variable ",N ," Not defined at line ",t[i].line)
+            }
+        }
         i++
-        if(EXP()){
+        var Texp=React.createRef()
+        if(EXP(Texp,scope,null)){
+            var indexVal=ST.compatibility(Texp.current,"int","=")
+            if(!indexVal){
+                console.log("Index Value cannot be of type ",Texp.current," at line ",t[i].CP)
+            }
             if(t[i].CP==="]"){
                 i++
-                if(N_ARR_N()){
+                if(N_ARR_N(Tl,T,scope,ref,CN)){
                     return true
                 }
             }
         }
     }
     else if(find(N_INIT_VALUE1,t[i].CP)){
+        if(ref && ref.current.used==="present"){
+            T.current = ST.lookupCDT(N,ref) 
+            if(!T.current){
+                console.log("Undeclared Variable Found| Variable ",N ," Not defined",t[i].line)
+            }
+            ref.current.used=null
+        }
+        else{
+            T.current=ST.lookupST(N)
+            if(!T.current){
+                console.log("Undeclared Variable Found| Variable ",N ," Not defined at line ",t[i].line)
+            }
+        }
         return true
     }
 }
-function OTHER_N_VALUE(){
+function OTHER_N_VALUE(N,T,scope,ref,CN){
     if(t[i].CP==="."){
         i++
         if(t[i].CP==="ID"){
+            var N=t[i].VP
+            if(CN.current){
+                CN.current = ST.lookupCDT(N,ref) 
+                if(!T.current){
+                    console.log("Undeclared Variable Found| Variable ",N ," Not defined",t[i].line)
+                }
+                ref.current.used=null
+            }
+            else{
+                CN.current=ST.lookupST(N)
+                console.log("CNAAA-->>>",CN)
+                if(!CN.current){
+                    console.log("Undeclared Variable Found| Variable ",N ," Not defined at line ",t[i].line)
+                }
+            }
             i++
             if(N_INIT_VALUE()){
                 return true
@@ -1686,7 +1888,7 @@ function OTHER_N_VALUE(){
     }
     return false
 }
-function N_ARR_N(){
+function N_ARR_N(Tl,T,scope,ref,CN){
     if(find(FirstOfMOV,t[i].CP)){
         if(OTHER_N_VALUE()){
             return true
@@ -1704,6 +1906,7 @@ function N_ARR_N(){
         }
     }
     else if(find(N_INIT_VALUE1,t[i].CP)){
+        T.current=Tl.current
         return true
     }
     
@@ -1720,9 +1923,9 @@ function N_ARR_2N(){
     }
     return false
 }
-function INIT_VALUE_2(){
+function INIT_VALUE_2(T,scope){
     if(find(FirstOfEXP,t[i].CP)){
-        if(EXP()){
+        if(EXP(T,scope,null)){
             return true
         }
     }
