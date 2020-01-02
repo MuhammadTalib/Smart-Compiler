@@ -1,35 +1,34 @@
-import { find, Start1, DEFS1, DEFS3, DEFS2, MST1, MST2, CLASS_MST1,
-    //DP11, 
-    SST11, SSTNEXT1, ELSE1, FOR_PARAM_21, FirstOfEXP, 
-    FirstOfINIT_VALUE_2, NextConstDT1, GT_INIT1, GT_INIT2, CALLING_PARAMS1,
-    DEC11, E1, EXP11, CONST, EXP12,
-    N_INIT_VALUE1, ARRAY1, ARRAY_VALUES1, FirstOfMOV, FirstOfMergedInit, 
-    FollowOfMergedN_ARR, FollowOfINIT_VALUE1, FirstOfOTHER_VALUE, DEC21 } from "./SelectionSets"
-import SymbolTable from "../SemanticAnalyzer/SymbolTable"
-import React from 'react';
 
+import React from 'react';
+import { find, Start1, DEFS1, DEFS3, DEFS2, MST1, MST2, CLASS_MST1, SST11, SSTNEXT1, ELSE1, FOR_PARAM_21, FirstOfEXP, 
+        FirstOfINIT_VALUE_2, NextConstDT1, CALLING_PARAMS1,DEC11, E1, EXP11, CONST, EXP12, N_INIT_VALUE1, ARRAY1, ARRAY_VALUES1, 
+        FirstOfMOV, FirstOfMergedInit, FollowOfMergedN_ARR, FollowOfINIT_VALUE1, FirstOfOTHER_VALUE, DEC21 } from "./SelectionSets"
+
+
+import { createTemp,createLabel, Output, savingIntermediateCode } from "../ICG/ICGfunctions";
+
+Output("<<--<<$>>-->>Intermediate Code<<--<<$>>-->>\n\n")
 
 var i,t,syntax=true,inFuncP=false
-var ST=new SymbolTable()
-// var a={a:{a:0,b:()=>{}}}
-// a.a.b().a=2
-// console.log("a",a)
-
+var ST
 function syntaxFalse(){
     syntax=false
     if(inFuncP===true) syntax=true
     return syntax
 }
-export const SyntaxAnalyzer=(token)=>{
+export const SyntaxAnalyzer=(token,SymbolTable)=>{
+    ST=SymbolTable
     syntax=true
     i=0
     t=token
-    if(START()){
+    if(ST && START()){
         if(t[i].CP==="$"){
             i++
-            console.log("VALID SYNTAX! Congratulations!")
-            console.log("ST",ST.ScopeTable)
-            console.log("CT",ST.ClassTable)
+            // console.log("VALID SYNTAX! Congratulations!")
+            // console.log("ST",ST.ScopeTable)
+            // console.log("CT",ST.ClassTable)
+            // savingIntermediateCode()
+            return true
         }
     }
     else {
@@ -179,19 +178,26 @@ function SST1(scope, RT){
 // }
 function WHILE(scope){
     if(t[i].CP==="while"){
+        var L1=createLabel()
+        Output(L1,":")
         i++
         if(t[i].CP==="("){
             i++
             var T=React.createRef()
-            if(EXP(T,scope)){
-               var Tr=ST.compatibility(T.current,"bool","cond")
-               if(!Tr){ console.log("Condition Type Mismatch at line", t[i].line)}
-               if(t[i].CP===")"){
-                   i++
-                   if(BODY(scope,null)){
-                       return true
-                   }
-               } 
+            var tname=React.createRef()
+            if(EXP(T,scope,tname)){
+                var L2=createLabel()
+                Output("if("+tname+"==false) jmp "+L2)
+                var Tr=ST.compatibility(T.current,"bool","cond")
+                if(!Tr){ console.log("Condition Type Mismatch at line", t[i].line)}
+                if(t[i].CP===")"){
+                    i++
+                    if(BODY(scope,null)){
+                        Output("jmp "+L1)
+                        Output(L2+":")
+                        return true
+                    }
+                } 
             }
         }
     }
@@ -250,6 +256,17 @@ function FOR_PARAM(){
     return false
 }
 function FOR_PARAM_2(){
+    if(t[i].CP===";"){
+        i++
+        if(C2()){
+            if(t[i].CP===";"){
+                i++
+                if(C3()){
+                    return true
+                }
+            }
+        }
+    }
     if(find(FOR_PARAM_21,t[i].CP)){
         if(INIT_VALUE()){
             if(t[i].CP==="AOR" || t[i].CP==="AOP"){
@@ -386,7 +403,6 @@ function CONST_DT(scope,ref=null){
                     console.log("Redeclaration Error | variable ",N," is already defined in class")
                 }
                 if(NEXT_CONST_DT()){
-                    console.log("REturnng true")
                     return true
                 }
             }
@@ -484,14 +500,12 @@ function CONST_DT2(Tr,scope){
     return false
 }
 function NEXT_CONST_DT(){
-    console.log("in next const DT",t[i].CP)
     if(t[i].CP===","){
         if(DEC_PARAMS()){
             return true
         }
     }
     else if(find(NextConstDT1,t[i].CP)){
-        console.log("Returnning true")
         return true
     }
     return false
@@ -535,115 +549,15 @@ function GTSDEC(){
             return true
         }
     }
-    else if(t[i].CP==="{"){
-        if(OBJECT()){
-            return true
-        }
-    }
+    // else if(t[i].CP==="{"){
+    //     if(OBJECT()){
+    //         return true
+    //     }
+    // }
     else if(t[i].CP==="["){
         if(ARRAY()){
             return true
         }
-    }
-    return false
-}
-function GT_INIT(){
-    if(find(GT_INIT1,t[i].CP)){
-        return true
-    }
-    else if(t[i].CP==="(" || t[i].CP==="."){
-        if(GT_VALUE()){
-            return true
-        }
-    }
-    else if(t[i].CP==="["){
-        i++
-        if(EXP()){
-            if(t[i].CP==="]"){
-                i++
-                if(GT_ARR()){
-                    return true
-                }
-            }
-        }
-    }
-    return false
-}
-function GT_VALUE(){
-    if(t[i].CP==="."){
-        i++
-        if(t[i].CP==="ID"){
-            i++
-            if(NEXT_GT()){
-                return true
-            }
-        }
-    }
-    else if(t[i].CP==="("){
-        i++
-        if(CALLING_PARAM()){
-            if(t[i].CP===")"){
-                i++
-                if(GT_INIT()){
-                    return true
-                }
-            }
-        }
-    }
-    return false
-}
-function GT_ARR(){
-    if(find(GT_INIT1,t[i].CP)){
-        return true
-    }
-    else if(t[i].CP==="(" || t[i].CP==="."){
-        if(GT_VALUE()){
-            return true
-        }
-    }
-    else if(t[i].CP==="["){
-        i++
-        if(EXP()){
-            if(t[i].CP==="]"){
-                i++
-                if(GT_ARR2()){
-                    return true
-                }
-            }
-        }
-    }
-}
-function GT_ARR2(){
-    if(find(GT_INIT1,t[i].CP)){
-        return true
-    }
-    else if(t[i].CP==="(" || t[i].CP==="."){
-        if(GT_VALUE()){
-            return true
-        }
-    }
-}
-function NEXT_GT(){
-    if(find(GT_INIT2,t[i].CP)){
-        if(GT_INIT()){
-            if(NEXT2_GT()){
-                return true
-            }
-        }
-    }
-    return false
-}
-function NEXT2_GT(){
-    if(t[i].CP==="inc_dec"){
-        i++
-        return true
-    }
-    else if(t[i].CP==="AOP" || t[i].CP==="AOR"){
-        i++
-        if(N_INIT_VALUE()){
-            return true
-        }
-
     }
     return false
 }
@@ -912,7 +826,6 @@ function CLASS_MST(ref) {
     if(find(CLASS_MST1,t[i].CP)){
         if(CLASS_CONSTRUCTOR(ref)){
             if(CLASS_ST(ref)){
-                console.log("CLASS ST TRUE")
                 if(CLASS_MST(ref)){
                     return true
                 }
@@ -1009,7 +922,6 @@ function THIS_VAR(scope,ref){
     return false
 }
 function CLASS_ST(ref){
-    console.log("IN CLASS ST",t[i].CP,t[i].CP)
     if(t[i].CP==="ID"){
         if(CLASS_FUNC(ref)){
             return true
@@ -1026,9 +938,7 @@ function CLASS_ST(ref){
         }
     }
     else if(t[i].CP==="const"){
-        console.log("bforn const dt in class")
         if(CONST_DT(null,ref)){
-            console.log("CONST_DET TRUE")
             return true
         }
     }
@@ -1287,8 +1197,6 @@ function DEC1(Tl,scope,ref){
     else if(t[i].CP==="AOR"){
         var O=t[i].VP
         i++
-        
-        console.log("AOR",t[i].CP)
         var Tr=React.createRef()
         if(DEC2(Tr,scope,ref)){
             if(!ST.compatibility(Tl,Tr.current,O)){
@@ -1300,7 +1208,6 @@ function DEC1(Tl,scope,ref){
     return false
 }
 function DEC2(T,scope,ref) {
-    console.log("ref",ref)
     if(t[i].CP==="ID"){
         var N=t[i].VP
         var CN=React.createRef()
@@ -1334,16 +1241,14 @@ function DEC3(N,T,scope,CN){
     else if(t[i].CP==="[" || t[i].CP==="." || t[i].CP==="(" || t[i].CP==="$"){
         var Tl=React.createRef()
         if(MERGED_INIT(N,Tl,scope,CN)){
-            console.log("After Merged Ijnit",N,Tl,scope,CN)
             if(EXP1(Tl,T,scope)){
                 return true
             }
         }
     }
     else if(find(EXP11,t[i].CP)){
-        console.log("here")
         Tl=React.createRef()
-        if(CN==null){
+        if(CN.current==null){
             Tl.current=ST.lookupST(N)
             if(!Tl.current){
                 console.log("Undeclared Variable | ",N," not found at line ",t[i].line)
@@ -1386,10 +1291,18 @@ function MERGED_INIT(N,T,scope,CN){
 }
 function MOV(N,scope,T,CN){
     if(t[i].CP==="."){
-        if(CN.current===null){
+        if(N) if(CN.current===null){
             CN.current=ST.lookupST(N)
+            if(!CN.current){
+                console.log("Undeclared Variable | Variable ",N," not declared")
+            }
         }else{
-            CN.current=ST.lookupCDT(N,CN)
+            var ref=React.createRef()
+            ref= ST.lookupCT(CN.current).ref
+            CN.current=ST.lookupCDT(N,ref)
+            if(!CN.current){
+                console.log("Undeclared Variable | Variable ",N," not declared")
+            }
         }
         i++
         if(t[i].CP==="ID"){
@@ -1405,12 +1318,22 @@ function MOV(N,scope,T,CN){
         var PL=React.createRef()
         if(CALLING_PARAM(PL)){
             if(t[i].CP===")"){
-                CN.current=ST.lookupFT(N,PL,CN)
                 if(CN.current===null){
-                    console.log("Function ",N," is not defined at line ",t[i].line)
+                    CN.current=ST.lookupFT(N,PL.current)
+                    if(!CN.current){
+                        console.log("Undeclared Function | Function ",N," not declared")
+                    }
+                }else{
+                    var ref=React.createRef()
+                    ref= ST.lookupCT(CN.current).ref
+                    CN.current=ST.lookupCDT_Functions(N,PL.current,ref,"public")
+                    if(!CN.current){
+                        console.log("Undeclared Function | Function ",N," not declared")
+                    }
                 }
+                
                 i++
-                if(MERGED(N,scope,T,CN)){
+                if(MERGED(scope,T,CN)){
                     return true
                 }
             }
@@ -1427,6 +1350,9 @@ function MERGED1(N,scope,T,CN){
             var ref=React.createRef()
             ref= ST.lookupCT(CN.current).ref
             CN.current=ST.lookupCDT(N,ref)
+            if(!CN.current){
+                console.log("Undeclared Variable | Variable ",N," not declared")
+            }
         }
         if(EXP1(CN,T,scope)){
             return true
@@ -1442,6 +1368,22 @@ function MERGED1(N,scope,T,CN){
     else if(t[i].CP==="AOR" || t[i].CP==="AOP"){
         if(DEC1()){
             return true
+        }
+    }
+    return false
+}
+function MERGED(scope,T,CN){
+    if(find(EXP11,t[i].CP)){
+        if(EXP1(CN,T,scope)){
+            return true
+       }
+    }
+    else if(find(FirstOfMergedInit,t[i].CP)){
+        var N=null
+        if(MERGED_INIT(N,T,scope,CN)){
+            if(DEC1()){
+                return true
+            }
         }
     }
     return false
@@ -1469,9 +1411,16 @@ function M_N_ARR(N,scope,T,CN){
     }
     else if(find(FollowOfMergedN_ARR,t[i].CP)){
         if(CN.current===null){
-            T.current=ST.lookupST(N)
+            CN.current=ST.lookupST(N)
         }else{
-            T.current=ST.lookupCDT(N,CN)
+            var ref=React.createRef()
+            ref= ST.lookupCT(CN.current).ref
+            CN.current=ST.lookupCDT(N,ref)
+            T.current=CN.current
+            if(!CN.current){
+                console.log("Undeclared Variable | Variable ",N," not declared")
+            }
+
         }
         return true
     }
@@ -1485,27 +1434,18 @@ function M_N_ARR2(N,scope,T,CN){
     }
     else if(find(FollowOfMergedN_ARR,t[i].CP)){
         if(CN.current===null){
-            T.current=ST.lookupST(N)
+            CN.current=ST.lookupST(N)
         }else{
-            T.current=ST.lookupCDT(N,CN)
+            var ref=React.createRef()
+            ref= ST.lookupCT(CN.current).ref
+            CN.current=ST.lookupCDT(N,ref)
+            T.current=CN.current
+            if(!CN.current){
+                console.log("Undeclared Variable | Variable ",N," not declared")
+            }
+
         }
         return true
-    }
-    return false
-}
-function MERGED(N,scope,T,CN){
-    if(find(EXP11,t[i].CP)){
-        
-        if(EXP1(CN,T,scope)){
-            return true
-       }
-    }
-    else if(find(FirstOfMergedInit,t[i].CP)){
-        if(MERGED_INIT(N,T,scope,CN)){
-            if(DEC1()){
-                return true
-            }
-        }
     }
     return false
 }
@@ -1703,7 +1643,7 @@ function Q_DASH(Tl,T,scope,ref){
         }
     }
     else if(find(EXP11,t[i].CP)){
-        T.current=Tl.current
+        if(T) T.current=Tl.current
         return true
     }
     return false
@@ -1771,7 +1711,8 @@ function F(T, scope,ref){
         var N=t[i].VP
         i++
         var CN=React.createRef()
-        if(NEW_ASGN(N, T, scope,ref,CN)){
+        if(NEW_ASGN(N, T, scope, ref, CN)){
+            T.current=CN.current
             return true
         }
     }
@@ -1805,46 +1746,30 @@ function N_INIT_VALUE(N,T,scope,ref,CN){
         }
     }
     else if(t[i].CP==="["){
-        var Tl=React.createRef()
-        if(CN){
-            Tl.current = ST.lookupCDT(N,CN) 
-            if(!Tl.current){
-                console.log("Undeclared Variable Found| Variable ",N ," Not defined",t[i].line)
-            }
-        }
-        else{
-            Tl.current=ST.lookupST(N)
-            if(!Tl.current){
-                console.log("Undeclared Variable Found| Variable ",N ," Not defined at line ",t[i].line)
-            }
-        }
         i++
-        var Texp=React.createRef()
-        if(EXP(Texp,scope,null)){
-            var indexVal=ST.compatibility(Texp.current,"int","=")
-            if(!indexVal){
-                console.log("Index Value cannot be of type ",Texp.current," at line ",t[i].CP)
+        var Te=React.createRef()
+        if(EXP(Te,scope,null)){
+            if(!ST.compatibility(Te.current,"int","=")){
+                console.log("Type Mismatch at line",t[i].line,"index cannot be not int value")
             }
             if(t[i].CP==="]"){
                 i++
-                if(N_ARR_N(Tl,T,scope,ref,CN)){
+                if(N_ARR_N(N,T,scope,ref,CN)){
                     return true
                 }
             }
         }
     }
     else if(find(N_INIT_VALUE1,t[i].CP)){
-        if(ref && ref.current.used==="present"){
-            T.current = ST.lookupCDT(N,ref) 
-            if(!T.current){
-                console.log("Undeclared Variable Found| Variable ",N ," Not defined",t[i].line)
-            }
-            ref.current.used=null
-        }
-        else{
-            T.current=ST.lookupST(N)
-            if(!T.current){
-                console.log("Undeclared Variable Found| Variable ",N ," Not defined at line ",t[i].line)
+        if(CN && CN.current===null){
+            if(CN) CN.current=ST.lookupST(N)
+        }else{
+            ref=React.createRef()
+            ref=CN && ST.lookupCT(CN.current).ref
+            if(CN) CN.current=ST.lookupCDT(N,ref)
+            if(CN) T.current=CN.current
+            if(CN && !CN.current){
+                console.log("Undeclared Variable | Variable ",N," not declared")
             }
         }
         return true
@@ -1854,31 +1779,42 @@ function OTHER_N_VALUE(N,T,scope,ref,CN){
     if(t[i].CP==="."){
         i++
         if(t[i].CP==="ID"){
-            var N=t[i].VP
-            if(CN.current){
-                CN.current = ST.lookupCDT(N,ref) 
-                if(!T.current){
-                    console.log("Undeclared Variable Found| Variable ",N ," Not defined",t[i].line)
-                }
-                ref.current.used=null
-            }
-            else{
+            if(CN.current===null){
                 CN.current=ST.lookupST(N)
-                console.log("CNAAA-->>>",CN)
+            }else{
+                var refer=React.createRef()
+                refer= ST.lookupCT(CN.current).ref
+                if(CN) CN.current=ST.lookupCDT(N,refer)
                 if(!CN.current){
-                    console.log("Undeclared Variable Found| Variable ",N ," Not defined at line ",t[i].line)
+                    console.log("Undeclared Variable | Variable ",N," not declared")
                 }
             }
+            var N=t[i].VP
             i++
-            if(N_INIT_VALUE()){
+            if(N_INIT_VALUE(N,T,scope,ref,CN)){
                 return true
             }
         }
     }
     else if(t[i].CP==="("){
         i++
-        if(CALLING_PARAM()){
+        var PL=React.createRef()
+        if(CALLING_PARAM(PL,scope)){
             if(t[i].CP===")"){
+                if(CN.current===null){
+                    CN.current=ST.lookupFT(N,PL.current)
+                    if(!CN.current){
+                        console.log("Undeclared Function | Function ",N," not declared")
+                    }
+                }else{
+                    var ref=React.createRef()
+                    ref= ST.lookupCT(CN.current).ref
+                    CN.current=ST.lookupCDT_Functions(N,PL.current,ref,"public")
+                    console.log("CN after lookup CDT",CN)
+                    if(!CN.current){
+                        console.log("Undeclared Function | Function ",N," not declared")
+                    }
+                }
                 i++
                 if(N_INIT_VALUE()){
                     return true
@@ -1888,37 +1824,64 @@ function OTHER_N_VALUE(N,T,scope,ref,CN){
     }
     return false
 }
-function N_ARR_N(Tl,T,scope,ref,CN){
+function N_ARR_N(N,T,scope,ref,CN){
     if(find(FirstOfMOV,t[i].CP)){
-        if(OTHER_N_VALUE()){
+        if(OTHER_N_VALUE(N,T,scope,ref,CN)){
             return true
         }
     }
     else if(t[i].CP==="["){
         i++
-        if(EXP()){
+        var Te=React.createRef()
+        if(EXP(Te)){
+            if(!ST.compatibility(Te.current,"int","=")){
+                console.log("Type Mismatch at line",t[i].line,"index cannot be not int value")
+            }
             if(t[i].CP==="]"){
                 i++
-                if(N_ARR_2N()){
+                if(N_ARR_2N(N,T,scope,ref,CN)){
                     return true
                 }
             }
         }
     }
     else if(find(N_INIT_VALUE1,t[i].CP)){
-        T.current=Tl.current
+        if(CN.current===null){
+            CN.current=ST.lookupST(N)
+        }else{
+            ref=React.createRef()
+            ref= ST.lookupCT(CN.current).ref
+            CN.current=ST.lookupCDT(N,ref)
+            T.current=CN.current
+            if(!CN.current){
+                console.log("Undeclared Variable | Variable ",N," not declared")
+            }
+
+        }
         return true
     }
     
     return false
 }
-function N_ARR_2N(){
+function N_ARR_2N(N,T,scope,ref,CN){
     if(find(FirstOfMOV,t[i].CP)){
-        if(OTHER_N_VALUE()){
+        if(OTHER_N_VALUE(N,T,scope,ref,CN)){
             return true
         }
     }
     else if(find(N_INIT_VALUE1,t[i].CP)){
+        if(CN.current===null){
+            CN.current=ST.lookupST(N)
+        }else{
+            ref=React.createRef()
+            ref= ST.lookupCT(CN.current).ref
+            CN.current=ST.lookupCDT(N,ref)
+            T.current=CN.current
+            if(!CN.current){
+                console.log("Undeclared Variable | Variable ",N," not declared")
+            }
+
+        }
         return true
     }
     return false
@@ -1934,11 +1897,11 @@ function INIT_VALUE_2(T,scope){
             return true
         }
     }
-    else if(t[i].CP==="{"){
-        if(OBJECT()){
-            return true
-        }
-    }
+    // else if(t[i].CP==="{"){
+    //     if(OBJECT()){
+    //         return true
+    //     }
+    // }
     return false
 }
 function OBJECT(){
@@ -2026,7 +1989,6 @@ function ARRAY_INNER(){
     }
 }
 function ARRAY_VALUES(){
-
     if(find(ARRAY_VALUES1,t[i].CP)){
         if(ARRAY_VAL()){
             if(NEXT_VAL()){
@@ -2161,140 +2123,120 @@ function N_ARR2(){
     }
     return false
 }
+// class A{
 
-// function EXP1(){
-//     console.log("status",t[i].CP,"IN EXP")
-//     if(find(EXP11,t[i].CP)){
-//         if(T()){
-//             if(E_DASH()){
-//                 console.log("status",t[i].CP,"ret true from EXP1",syntax)
-//                 return true
-//             }
-//         }
+//     constructor(float a){}
+//     int ee=5
 //     }
-//     return false
-// }
-// function E_DASH(){
-//     if(t[i].CP==="||"){
-//         i++
-//         if(N_Q()){
-//             if(EXP1()){
-//                 return true
-//             }
-//         }
+//     class B{
+    
+//     constructor(float a){}
+//     const ss=new A(5.1)
+    
 //     }
-//     else if(find(E_DASH1,t[i].CP)){
-//         return true
-//     }
-//     return false
-// }
-// function T(){
-//     if(find(EXP11,t[i].CP)){
-//         if(S()){
-//             if(T_DASH()){
-//                 return true
-//             }
-//         }
-//     }
-//     return false
-// }
-// function T_DASH(){
-//     if(t[i].CP==="&&"){
-//         i++
-//         if(N_Q()){
-//             if(EXP1()){
-//                 return true
-//             }
-//         }
-//     }
-//     else if(find(T_DASH1,t[i].CP)){
-//         return true
-//     }
-//     return false
-// }
-// function S(){
-//     if(find(EXP11,t[i].CP)){
-//         if(R()){
-//             if(S_DASH()){
-//                 return true
-//             }
-//         }
-//     }
-//     return false
-// }
-// function S_DASH(){
-//     if(t[i].CP==="ROP"){
-//         i++
-//         if(N_Q()){
-//             if(EXP1()){
-//                 return true
-//             }
-//         }
-//     }
-//     else if(find(S_DASH1,t[i].CP)){
-//         return true
-//     }
-//     return false
-// }
-// function R(){
-//     if(find(EXP11,t[i].CP)){
-//         if(Q()){
-//             if(R_DASH()){
-//                 return true
-//             }
-//         }
-//     }
-//     return false
-// }
-// function R_DASH(){
-//     if(t[i].CP==="PM"){
-//         i++
-//         if(N_Q()){
-//             if(R()){
-//                 return true
-//             }
-//         }
-//     }
-//     else if(find(R_DASH1,t[i].CP)){
-//         return true
-//     }
-//     return false
-// }
-// function Q(){
-//     if(find(EXP11,t[i].CP)){
-//         if(Q_DASH()){
-//             return true
-//         }
-//     }
-//     return false
-// }
+    
+//     const bb=new B(1.1)
+    
+//     int a=bb.ss.ee[2]
 
-// function Q_DASH(){
-//     if(t[i].CP==="MDM"){
+
+// function GT_VALUE(){
+//     if(t[i].CP==="."){
 //         i++
-//         if(N_Q()){
-//             if(Q_DASH()){
+//         if(t[i].CP==="ID"){
+//             i++
+//             if(NEXT_GT()){
 //                 return true
 //             }
 //         }
 //     }
-//     else if(find(Q_DASH1,t[i].CP)){
-//         console.log("Q_DASH1 true",t[i].CP)
-//         return true
+//     else if(t[i].CP==="("){
+//         i++
+//         if(CALLING_PARAM()){
+//             if(t[i].CP===")"){
+//                 i++
+//                 if(GT_INIT()){
+//                     return true
+//                 }
+//             }
+//         }
 //     }
 //     return false
 // }
-// function N_Q(){ 
-//     console.log("status",t[i].CP,t[i].VP,"N_Q")
-//     if(find(E1,t[i].CP)){
-//         if(E()){
+// function GT_INIT(){
+//     if(find(GT_INIT1,t[i].CP)){
+//         return true
+//     }
+//     else if(t[i].CP==="(" || t[i].CP==="."){
+//         if(GT_VALUE()){
 //             return true
 //         }
 //     }
-//     else if(t[i].CP==="ID"){
-//         if(F()){
+//     else if(t[i].CP==="["){
+//         i++
+//         if(EXP()){
+//             if(t[i].CP==="]"){
+//                 i++
+//                 if(GT_ARR()){
+//                     return true
+//                 }
+//             }
+//         }
+//     }
+//     return false
+// }
+// function GT_ARR(){
+//     if(find(GT_INIT1,t[i].CP)){
+//         return true
+//     }
+//     else if(t[i].CP==="(" || t[i].CP==="."){
+//         if(GT_VALUE()){
 //             return true
 //         }
+//     }
+//     else if(t[i].CP==="["){
+//         i++
+//         if(EXP()){
+//             if(t[i].CP==="]"){
+//                 i++
+//                 if(GT_ARR2()){
+//                     return true
+//                 }
+//             }
+//         }
+//     }
+// }
+// function GT_ARR2(){
+//     if(find(GT_INIT1,t[i].CP)){
+//         return true
+//     }
+//     else if(t[i].CP==="(" || t[i].CP==="."){
+//         if(GT_VALUE()){
+//             return true
+//         }
+//     }
+// }
+// function NEXT_GT(){
+//     if(find(GT_INIT2,t[i].CP)){
+//         if(GT_INIT()){
+//             if(NEXT2_GT()){
+//                 return true
+//             }
+//         }
+//     }
+//     return false
+// }
+// function NEXT2_GT(){
+//     if(t[i].CP==="inc_dec"){
+//         i++
+//         return true
+//     }
+//     else if(t[i].CP==="AOP" || t[i].CP==="AOR"){
+//         i++
+//         if(N_INIT_VALUE()){
+//             return true
+//         }
+
 //     }
 //     return false
 // }

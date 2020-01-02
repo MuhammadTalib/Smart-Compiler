@@ -3,6 +3,7 @@ import { store } from './../Redux/store';
 import { add_new_file } from './../Redux/File/action';
 import { SyntaxAnalyzer } from './SyntaxAnalyzer/SyntaxAnalyzer';
 import checkingSemantics from "./SemanticAnalyzer/SemanticAnalyzer"
+import { savingIntermediateCode } from './ICG/ICGfunctions';
 
 export const saveAs = () => {
     var file = store.getState().files.selectedFile
@@ -31,16 +32,17 @@ export const saveTokenSetAs = (token) => {
     var file = store.getState().files.selectedFile
     var i,text=""
     
-    token.push({CP: "$", VP: "$", line: 0, index: 7})
+    //token.push({CP: "$", VP: "$", line: 0, index: 7})
     for(i in token){
         console.log(i,token[i])
         var a="(CP:"+token[i].CP+" ,VP:"+token[i].VP+" ,LineNumber:"+token[i].line+" ,Index:"+token[i].index+" )\n"
         text=text+a
     }
-    if(SyntaxAnalyzer(token)){
-        console.log("Valid Syntax")
-    }
-    checkingSemantics()
+    // if(SyntaxAnalyzer(token)){
+    //     console.log("Valid Syntax")
+    // }
+    // checkingSemantics()
+   // savingIntermediateCode()
     // var ref=React.createRef()
     // var A= new CalssTableItem("A","B","staic","public",ref)
     // ref.current=[]

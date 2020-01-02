@@ -55,5 +55,6 @@ export const lexicalAnalyzer = (text) => {
             i++
         }
     }
-    saveTokenSetAs(tokenSet)
+    tokenSet.push({CP:"$",VP:"$",line:0,index:0})
+    return tokenSet
 }

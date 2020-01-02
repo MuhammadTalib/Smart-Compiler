@@ -33,6 +33,25 @@ export default class SymbolTable{
         }
         return false
     }
+    
+    lookupFT(N,PL){
+        for(var j=0;j<this.ClassTable.length;j++){
+            var t=this.ClassTable[j].Type.split("-")
+            if(this.ClassTable[j].Name===N && t[0]===PL){
+                return this.ClassTable[j].Type.split(">")[1]
+            }
+        }
+    }
+    lookupCDT_Functions(N,PL,ref,access){
+        if(ref.current){
+            for(var i=0;i< ref.current.length;i++){
+                if(ref.current[i].Name===N && ref.current[i].Type.split("-")[0]===PL && ref.current[i].AM===access){
+                    return ref.current[i].Type.split(">").pop()
+                }
+            }
+        }
+        return undefined
+    }
     lookupCT(N){
         for(var j=0;j<this.ClassTable.length;j++){
             if(this.ClassTable[j].Name===N ){
@@ -51,17 +70,6 @@ export default class SymbolTable{
         }
         return undefined
     }
-    lookupCDT_Functions(N,PL,ref,access){
-        if(ref.current){
-            for(var i=0;i< ref.current.length;i++){
-                if(ref.current[i].Name===N && ref.current[i].Type.split("-")[0]===PL && ref.current[i].AM===access){
-                    return ref.current[i].Type.split(">").pop()
-                }
-            }
-        }
-        return undefined
-    }
-    lookupFT(){}
     deleteScope(){
         this.CurrScope=this.ScopeStack.pop()
         console.log("Scope Deleted",this.CurrScope)
@@ -114,6 +122,18 @@ export default class SymbolTable{
             {T1:"int",T2:"int",O:"&&",ret:"bool"},
             {T1:"int",T2:"int",O:"||",ret:"bool"},
 
+            {T1:"bool",T2:"bool",O:"+",ret:"bool"},
+            {T1:"bool",T2:"bool",O:"-",ret:"bool"},
+            {T1:"bool",T2:"bool",O:"*",ret:"bool"},
+            {T1:"bool",T2:"bool",O:"/",ret:"bool"},
+            {T1:"bool",T2:"bool",O:"%",ret:"bool"},
+            {T1:"bool",T2:"bool",O:">",ret:"bool"},
+            {T1:"bool",T2:"bool",O:"<",ret:"bool"},
+            {T1:"bool",T2:"bool",O:">=",ret:"bool"},
+            {T1:"bool",T2:"bool",O:"<=",ret:"bool"},
+            {T1:"bool",T2:"bool",O:"&&",ret:"bool"},
+            {T1:"bool",T2:"bool",O:"||",ret:"bool"},
+
             {T1:"float",T2:"float",O:"+",ret:"float"},
             {T1:"float",T2:"float",O:"-",ret:"float"},
             {T1:"float",T2:"float",O:"*",ret:"float"},
@@ -137,6 +157,11 @@ export default class SymbolTable{
             {T1:"short",T2:"bool",O:"cond",ret:"bool"},
 
             {T1:"int",T2:"int",O:"=",ret:"int"},
+            {T1:"float",T2:"float",O:"=",ret:"float"},
+            {T1:"int",T2:"float",O:"=",ret:"int"},
+            {T1:"float",T2:"int",O:"=",ret:"int"},
+            {T1:"int",T2:"bool",O:"=",ret:"int"},
+            {T1:"string",T2:"string",O:"=",ret:"string"}
         ]
         for(var i=0;i<compatibilityArray.length;i++){
             if(compatibilityArray[i].T1===T1 && compatibilityArray[i].T2===T2 && compatibilityArray[i].O===Op){

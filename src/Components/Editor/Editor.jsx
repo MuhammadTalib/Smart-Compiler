@@ -56,6 +56,7 @@ class Editor extends Component {
             <TextareaAutosize
                 name="query_field_one"
                 id="textarea"
+                spellCheck="false"
                 onClick={(event) => this.onLineChanged(event)}
                 onKeyPress={(event) => this.onLineChanged(event)}
                 onKeyUp={this.checkName}

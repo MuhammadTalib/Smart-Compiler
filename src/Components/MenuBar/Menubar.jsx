@@ -4,6 +4,7 @@ import MenuButton from '../MenuButton/Button';
 import {connect} from "react-redux"
 import { buttonData, run } from "./buttonData"
 import {open_new_file} from "./../../Redux/File/action"
+import { RunCompiler } from '../../Backend/Compiler/RunFunction';
 class MenuBar extends Component {
     state = {}
     onfileInput=()=>{
@@ -38,7 +39,7 @@ class MenuBar extends Component {
                 )}
                
                 <button className="runbtn" onClick={() => {
-                    run()
+                    RunCompiler()
                 }}>Run</button>
             </div>
         );
