@@ -5,7 +5,7 @@ import { find, Start1, DEFS1, DEFS3, DEFS2, MST1, MST2, CLASS_MST1, SST11, SSTNE
         FirstOfMOV, FirstOfMergedInit, FollowOfMergedN_ARR, FollowOfINIT_VALUE1, FirstOfOTHER_VALUE, DEC21 } from "./SelectionSets"
 
 
-import { createTemp,createLabel, Output, savingIntermediateCode } from "../ICG/ICGfunctions";
+import { createTemp,createLabel, Output } from "../ICG/ICGfunctions";
 
 Output("<<--<<$>>-->>Intermediate Code<<--<<$>>-->>\n\n")
 
@@ -192,6 +192,7 @@ function WHILE(scope){
                 if(!Tr){ console.log("Condition Type Mismatch at line", t[i].line)}
                 if(t[i].CP===")"){
                     i++
+                    scope=ST.createScope()
                     if(BODY(scope,null)){
                         Output("jmp "+L1)
                         Output(L2+":")
@@ -208,10 +209,11 @@ function FOR(scope){
         i++
         if(t[i].CP==="("){
             i++
-            if(FOR_PARAM()){
+            scope=ST.createScope()
+            if(FOR_PARAM(scope)){
                 if(t[i].CP===")"){
                     i++
-                    if(BODY()){
+                    if(BODY(scope , null)){
                         return true
                     }
                 }
@@ -220,21 +222,22 @@ function FOR(scope){
     }
     return syntaxFalse()
 }
-function FOR_PARAM(){
+function FOR_PARAM(scope){
     if(t[i].CP==="ID"){
+        var N=t[i].VP
         i++
-        if(FOR_PARAM_2()){
+        if(FOR_PARAM_2(N,scope)){
             return true
         }
     }
     else if(t[i].CP==="DT"){
-        if(DEC()){
+        if(DEC(scope,null)){
             if(t[i].CP===";"){
                 i++
-                if(C2()){
+                if(C2(scope)){
                     if(t[i].CP===";"){
                         i++
-                        if(C3()){
+                        if(C3(scope)){
                             return true
                         }
                     }
@@ -244,10 +247,10 @@ function FOR_PARAM(){
     }
     else if(t[i].CP===";"){
         i++
-        if(C2()){
+        if(C2(scope)){
             if(t[i].CP===";"){
                 i++
-                if(C3()){
+                if(C3(scope)){
                     return true
                 }
             }
@@ -255,13 +258,16 @@ function FOR_PARAM(){
     }
     return false
 }
-function FOR_PARAM_2(){
+function FOR_PARAM_2(N,scope){
     if(t[i].CP===";"){
+        if(!ST.lookupST(N)){
+            console.log("Undeclared Error | Variable ",N," not declared at line ",t[i].line)
+        }
         i++
-        if(C2()){
+        if(C2(scope)){
             if(t[i].CP===";"){
                 i++
-                if(C3()){
+                if(C3(scope)){
                     return true
                 }
             }
@@ -288,31 +294,41 @@ function FOR_PARAM_2(){
         }
     }
     else if(t[i].CP==="in"){
-        if(RANGE_FOR()){
+        if(RANGE_FOR(N,scope)){
             return true
         }
     }
     return false
 }
-function RANGE_FOR(){
+function RANGE_FOR(N ,scope){
     if(t[i].CP==="in"){
         i++
-        if(FOR_R()){
+        var T=React.createRef()
+        if(FOR_R(scope,T)){
+            if(!ST.insertST(N,T.current,scope)){
+                console.log("Redeclartion Error | Variable ",N, " is already declared")
+            }
             return true
         }
     }
 }
-function FOR_R(){
+function FOR_R(scope ,T){
     if(t[i].CP==="ID"){
+        var N= t[i].VP
         i++
-        if(N_INIT_VALUE()){
+        var CN=React.createRef()
+        if(N_INIT_VALUE(N,T,scope,null,CN)){
             return true
         }
     }
 }
-function C2(){
+function C2(scope){
     if(find(FirstOfEXP,t[i].CP)){
-        if(EXP()){
+        var T=React.createRef()
+        if(EXP(T,scope,null)){
+            if(ST.compatibility( T.current,"bool","=")){
+                console.log("Mismatch Type at line ",t[i].line)
+            }
             return true
         }
     }
@@ -321,9 +337,9 @@ function C2(){
     }
     return false
 }
-function C3(){
+function C3(scope){
     if(t[i].CP==="ID"){
-        if(GTSWID()){
+        if(GTSWID(scope)){
             return true
         }
     }
@@ -332,9 +348,62 @@ function C3(){
     }
     return false
 }
+function GTSWID(scope){
+    if(t[i].CP==="ID"){
+        var N=t[i].VP
+        i++
+        if(INIT_VALUE()){
+            if(NEXT_GTSWID()){
+                return true
+            }
+        }
+    }
+    return false
+}
+function NEXT_GTSWID(){
+    if(t[i].CP==="inc_dec"){
+        i++
+        return true
+    }
+    else if(t[i].CP==="("){
+        i++
+        if(CALLING_PARAM()){
+            if(t[i].CP===")"){
+                i++
+                return true
+            }
+        }
+    }
+    else if(t[i].CP==="AOR" || t[i].CP==="AOP"){
+        i++
+        if(GTSDEC()){
+            return true
+        }
+    }
+    return false
+}
+function GTSDEC(){
+    if(find(DEC21,t[i].CP)){
+        if(DEC2()){
+            return true
+        }
+    }
+    // else if(t[i].CP==="{"){
+    //     if(OBJECT()){
+    //         return true
+    //     }
+    // }
+    else if(t[i].CP==="["){
+        if(ARRAY()){
+            return true
+        }
+    }
+    return false
+}
 function DO_WHILE(scope){
     if(t[i].CP==="do"){
         i++
+        scope=ST.createScope()
         if(BODY(scope,null)){
             if(t[i].CP==="while"){
                 i++
@@ -365,6 +434,7 @@ function IF_ELSE(scope){
                 if(!ST.compatibility(T.current,"bool","="))
                 if(t[i].CP===")"){
                     i++
+                    scope=ST.createScope()
                     if(BODY(scope,null)){
                         if(ELSE(scope)){
                             return true
@@ -379,7 +449,8 @@ function IF_ELSE(scope){
 function ELSE(scope){
     if(t[i].CP==="else"){
         i++
-        if(BODY()){
+        scope=ST.createScope()
+        if(BODY(scope,null)){
             return true
         }
     }
@@ -510,57 +581,6 @@ function NEXT_CONST_DT(){
     }
     return false
 }
-function GTSWID(scope){
-    if(t[i].CP==="ID"){
-        i++
-        if(INIT_VALUE()){
-            if(NEXT_GTSWID()){
-                return true
-            }
-        }
-    }
-    return false
-}
-function NEXT_GTSWID(){
-    if(t[i].CP==="inc_dec"){
-        i++
-        return true
-    }
-    else if(t[i].CP==="("){
-        i++
-        if(CALLING_PARAM()){
-            if(t[i].CP===")"){
-                i++
-                return true
-            }
-        }
-    }
-    else if(t[i].CP==="AOR" || t[i].CP==="AOP"){
-        i++
-        if(GTSDEC()){
-            return true
-        }
-    }
-    return false
-}
-function GTSDEC(){
-    if(find(DEC21,t[i].CP)){
-        if(DEC2()){
-            return true
-        }
-    }
-    // else if(t[i].CP==="{"){
-    //     if(OBJECT()){
-    //         return true
-    //     }
-    // }
-    else if(t[i].CP==="["){
-        if(ARRAY()){
-            return true
-        }
-    }
-    return false
-}
 function INC_DEC_PRE(){
     if(t[i].CP==="inc_dec"){
         i++
@@ -610,7 +630,8 @@ function CASES(){
         if(CASE_VALUE()){
             if(t[i].CP===":"){
                 i++
-                if(BODY()){
+                var scope=ST.createScope()
+                if(BODY(scope)){
                     return true
                 }
             }
@@ -623,7 +644,8 @@ function DEFAULT(){
         i++
         if(t[i].CP===":"){
             i++
-            if(BODY()){
+            var scope=ST.createScope()
+            if(BODY(scope)){
                 return true
             }
         }
@@ -689,7 +711,6 @@ function NEXT_CPVALUE(PL,scope){
     return false
 }
 function BODY(scope,RT){
-    scope=ST.createScope()
     if(t[i].CP===";"){
         i++
         
@@ -1319,7 +1340,10 @@ function MOV(N,scope,T,CN){
         if(CALLING_PARAM(PL)){
             if(t[i].CP===")"){
                 if(CN.current===null){
-                    CN.current=ST.lookupFT(N,PL.current)
+                    
+                    var FT=ST.lookupFT(N)
+                    if(FT && PL.current) ST.checkCompatibilityOfPL(PL.current.split(","),FT.split("-")[0].split(","),N)
+                    CN.current=FT.split(">").pop()
                     if(!CN.current){
                         console.log("Undeclared Function | Function ",N," not declared")
                     }
@@ -1331,6 +1355,19 @@ function MOV(N,scope,T,CN){
                         console.log("Undeclared Function | Function ",N," not declared")
                     }
                 }
+                // if(CN.current===null){
+                //     CN.current=ST.lookupFT(N,PL.current)
+                //     if(!CN.current){
+                //         console.log("Undeclared Function | Function ",N," not declared")
+                //     }
+                // }else{
+                //     var ref=React.createRef()
+                //     ref= ST.lookupCT(CN.current).ref
+                //     CN.current=ST.lookupCDT_Functions(N,PL.current,ref,"public")
+                //     if(!CN.current){
+                //         console.log("Undeclared Function | Function ",N," not declared")
+                //     }
+                // }
                 
                 i++
                 if(MERGED(scope,T,CN)){
@@ -1465,6 +1502,9 @@ function NEXT_DEC(){
         return true
     }
     else if(t[i].CP===";"){
+        return true
+    }
+    else if(t[i].CP==="function"){
         return true
     }
     else if(t[i].CP==="}"){
@@ -1761,17 +1801,23 @@ function N_INIT_VALUE(N,T,scope,ref,CN){
         }
     }
     else if(find(N_INIT_VALUE1,t[i].CP)){
-        if(CN && CN.current===null){
-            if(CN) CN.current=ST.lookupST(N)
-        }else{
-            ref=React.createRef()
-            ref=CN && ST.lookupCT(CN.current).ref
-            if(CN) CN.current=ST.lookupCDT(N,ref)
-            if(CN) T.current=CN.current
-            if(CN && !CN.current){
-                console.log("Undeclared Variable | Variable ",N," not declared")
-            }
+        if(N===null){
+            T.current=CN.current
         }
+        else{
+            if(CN.current===null){
+                if(CN){ CN.current=ST.lookupST(N)
+                        T.current=CN.current}
+                }else{
+                    ref=React.createRef()
+                    ref=CN && ST.lookupCT(CN.current).ref
+                    if(CN) CN.current=ST.lookupCDT(N,ref)
+                    if(CN) T.current=CN.current
+                    if(CN && !CN.current){
+                        console.log("Undeclared Variable | Variable ",N," not declared")
+                    }
+                }
+            }
         return true
     }
 }
@@ -1802,7 +1848,10 @@ function OTHER_N_VALUE(N,T,scope,ref,CN){
         if(CALLING_PARAM(PL,scope)){
             if(t[i].CP===")"){
                 if(CN.current===null){
-                    CN.current=ST.lookupFT(N,PL.current)
+                    
+                    var FT=ST.lookupFT(N)
+                    if(FT && PL.current) ST.checkCompatibilityOfPL(PL.current.split(","),FT.split("-")[0].split(","),N)
+                    CN.current=FT.split(">").pop()
                     if(!CN.current){
                         console.log("Undeclared Function | Function ",N," not declared")
                     }
@@ -1810,13 +1859,28 @@ function OTHER_N_VALUE(N,T,scope,ref,CN){
                     var ref=React.createRef()
                     ref= ST.lookupCT(CN.current).ref
                     CN.current=ST.lookupCDT_Functions(N,PL.current,ref,"public")
-                    console.log("CN after lookup CDT",CN)
                     if(!CN.current){
                         console.log("Undeclared Function | Function ",N," not declared")
                     }
                 }
+                // if(CN.current===null){
+                    
+                //     var FT=ST.lookupFT(N)
+                //     if(FT && PL.current) ST.checkCompatibilityOfPL(PL.current.split(","),FT.split("-")[0].split(","),N)
+                //     CN.current=FT.split(">").pop()
+                //     if(!CN.current){
+                //         console.log("Undeclared Function | Function ",N," not declared")
+                //     }
+                // }else{
+                //     var ref=React.createRef()
+                //     ref= ST.lookupCT(CN.current).ref
+                //     CN.current=ST.lookupCDT_Functions(N,PL.current,ref,"public")
+                //     if(!CN.current){
+                //         console.log("Undeclared Function | Function ",N," not declared")
+                //     }
+                // }
                 i++
-                if(N_INIT_VALUE()){
+                if(N_INIT_VALUE(null,T,scope,ref,CN)){
                     return true
                 }
             }
@@ -2123,21 +2187,7 @@ function N_ARR2(){
     }
     return false
 }
-// class A{
 
-//     constructor(float a){}
-//     int ee=5
-//     }
-//     class B{
-    
-//     constructor(float a){}
-//     const ss=new A(5.1)
-    
-//     }
-    
-//     const bb=new B(1.1)
-    
-//     int a=bb.ss.ee[2]
 
 
 // function GT_VALUE(){

@@ -11,6 +11,7 @@ export const keywords = [
 
 
     { word: "while", class: "while" },
+    { word: "in", class: "in" },
     { word: "new", class: "new" },
     { word: "do", class: "do" },
     { word: "for", class: "for" },

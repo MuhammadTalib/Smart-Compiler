@@ -1,7 +1,7 @@
 export const Start1=["DT","while","for","do","const","ID","class","function","inc_dec","if","switch","return","$"]
 
 export const DEFS1=["DT","ID","while","for","do","const","ID","inc_dec","if","switch","return","$"]
-export const EXP12=["DT","ID","while","for","do","const","ID","inc_dec","if","switch","return","$",")"]
+export const EXP12=["DT","ID","while","for","do","const","ID","inc_dec","if","switch","return","$",")","function"]
 export const DEFS2=["class"]
 export const DEFS3=["function"]
 
@@ -15,8 +15,8 @@ export const PROTECTED_PRO1=["ID","DT","protected"]
 
 export const DP11=["DT","ID",")",","]
 
-export const SST11=["DT","while","for","do","const","ID","inc_dec","if","switch","return","$",";"]
-export const SSTNEXT1=[",","DT","}","while","for","do","const","ID","inc_dec","if","switch","return","$","class"]
+export const SST11=["DT","while","for","do","const","ID","inc_dec","if","switch","return","$",";","function"]
+export const SSTNEXT1=[",","DT","}","while","for","do","const","ID","inc_dec","if","switch","return","$","class","function"]
 
 export const ELSE1=[";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$","}"]
 
@@ -35,22 +35,22 @@ export const GT_INIT2=["(",".","[","DT","while","for","do","const","ID","inc_dec
 
 export const CALLING_PARAMS1=["ID","(","!","inc_dec","float","int","string","FLOAT_CONST","INT_CONST","STRING_CONST","{","[",")"]
 
-export const DEC11=["}","=",")",",",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$"]
+export const DEC11=["}","=",")",",",";","DT","function","while","for","do","const","ID","inc_dec","if","switch","return","$"]
 export const DEC21=["ID","(","!","inc_dec","float","int","string","FLOAT_CONST","INT_CONST","STRING_CONST"]
 export const ARRAY_VALUES1=["...","ID","(","!","inc_dec","float","int","string","FLOAT_CONST","INT_CONST","STRING_CONST","{","["]
 export const E1=["this","(","!","inc_dec","float","int","string","FLOAT_CONST","INT_CONST","STRING_CONST","true","false"]
-export const EXP11=["this","!","inc_dec","float","int","string","FLOAT_CONST","INT_CONST","STRING_CONST","true","false","MDM","PM","ROP","||","}","&&","]",")",":",",",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$"]
+export const EXP11=["this","!","inc_dec","float","int","string","FLOAT_CONST","INT_CONST","function","STRING_CONST","true","false","MDM","PM","ROP","||","}","&&","]",")",":",",",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$"]
 export const E_DASH1=["]","}",")",":",",",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$"]
 export const T_DASH1=["||","]","}",")",":",",",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$"]
 export const S_DASH1=["&&","||","}","]",")",":",",",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$"]
 export const R_DASH1=["ROP","&&","||","}","]",")",":",",",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$"]
 export const Q_DASH1=['PM',"ROP","&&","}","||","]",")",":",",",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$"]
 export const CONST=["FLOAT_CONST","INT_CONST","STRING_CONST","true","false","float","int","string"]
-export const N_INIT_VALUE1=["MDM","PM","||","&&","ROP","]",")",":",",",";","(",".","[","DT","while","for","do","const","ID","inc_dec","if","switch","return","}","$"]
+export const N_INIT_VALUE1=["MDM","PM","||","&&","ROP","]",")",":",",",";","(",".","[","DT","while","for","do","const","ID","inc_dec","if","switch","return","}","$","function"]
 
 export const FirstOfMOV=[".","("]
-export const FirstOfMergedInit=[".","(","["]
-export const FollowOfMergedN_ARR=["MDM","PM","||","&&","ROP","AOR",",",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","}","$"]
+export const FirstOfMergedInit=[".","(","[","function"]
+export const FollowOfMergedN_ARR=["MDM","PM","||","&&","ROP","AOR",",",";","function","DT","while","for","do","const","ID","inc_dec","if","switch","return","}","$"]
 
 export const FollowOfINIT_VALUE1=["inc_dec","(","AOR","AOP"]
 export const FirstOfOTHER_VALUE=[".","("]

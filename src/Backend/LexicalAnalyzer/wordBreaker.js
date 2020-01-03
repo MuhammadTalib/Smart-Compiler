@@ -98,10 +98,10 @@ export const wordBreaker = (text, index,lineNum) => {
                     i++
                     return { index: i+1, word,lineNum}
                 }
-                else if(num.length===0 && text[i] === "+" && isNumber(text[i+1]) && !isNumber(text[i-1]) && !isAlphabet(text[i-1]) ){
+                else if(num.length===0 && text[i] === "+" && !isNumber(text[i-1]) && !isAlphabet(text[i-1]) && text[i-1]!==")" ){
                     num=num+text[i]
                 }
-                else if(num.length===0 && text[i] === "-" && isNumber(text[i+1]) && !isNumber(text[i-1]) && !isAlphabet(text[i-1])){
+                else if(num.length===0 && text[i] === "-" && isNumber(text[i+1]) && !isNumber(text[i-1]) && !isAlphabet(text[i-1]) && text[i-1]!==")"){
                    num=num+text[i]
                 }
                 else {

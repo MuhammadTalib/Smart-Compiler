@@ -1,6 +1,7 @@
 import ScopeTableItem from "./ScopeTable"
 import ClassData from "./ClassDataTable"
 import CalssTableItem from "./ClassTable"
+import { ReactReduxContext } from "react-redux"
 export default class SymbolTable{
     constructor(){
         this.ScopeTable=[]
@@ -34,11 +35,19 @@ export default class SymbolTable{
         return false
     }
     
-    lookupFT(N,PL){
+    lookupFT(N){
         for(var j=0;j<this.ClassTable.length;j++){
-            var t=this.ClassTable[j].Type.split("-")
-            if(this.ClassTable[j].Name===N && t[0]===PL){
-                return this.ClassTable[j].Type.split(">")[1]
+            if(this.ClassTable[j].Name===N && this.ClassTable[j].Type!=="class"){
+                return this.ClassTable[j].Type
+            }
+        }
+    }
+    checkCompatibilityOfPL(PL,EPL,F){
+        console.log("pl epl ft",PL,EPL)
+        if(PL.length!==EPL.length) {return console.log("Invalid Parameter length passed to Function ",F)}
+        else for(var i=0;i<PL.length;i++){
+            if(!this.compatibility(PL[i],EPL[i],"=")){
+                console.log("Type Mismath | Invalid parameter ",i+1," passed to Function ",F)
             }
         }
     }

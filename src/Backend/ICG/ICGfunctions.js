@@ -14,7 +14,6 @@ export const Output=(str)=>{
     ThreeAdressCode+=str+"\n"
 }
 export const savingIntermediateCode=()=>{
-    console.log("intermediate code")
     var file = store.getState().files.selectedFile
     var filename = "IntermediateCodeof"+file.title
     while (true) {
