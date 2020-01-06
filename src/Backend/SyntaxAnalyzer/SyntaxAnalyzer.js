@@ -348,15 +348,131 @@ function GTSWID(scope){
     if(t[i].CP==="ID"){
         var N=t[i].VP
         i++
-        if(INIT_VALUE()){
-            if(NEXT_GTSWID()){
+        var T=React.createRef()
+        var tICG=React.createRef()
+        if(INIT_VALUE(N,T,tICG)){
+            var Tl=React.createRef()
+            var t2ICG=React.createRef()
+            if(NEXT_GTSWID(Tl,scope,t2ICG)){
+                Output(tICG.current+" = "+t2ICG.current)
                 return true
             }
         }
     }
     return false
 }
-function NEXT_GTSWID(){
+
+function INIT_VALUE(N,T,tICG){
+    if(find(FollowOfINIT_VALUE1,t[i].CP)){
+        if(N){ 
+            tICG.current=createTemp()
+            Output(tICG.current+" = "+N)
+            T.current=ST.lookupST(N)
+            if(!T.current){
+                console.log("Not declared")
+            }
+        }
+        return true
+    }
+    else if(find(FirstOfOTHER_VALUE,t[i].CP)){
+        if(OTHER_VALUE()){
+            return true
+        }
+    }
+    else if(t[i].CP==="["){
+        i++
+        // var Te=React.createRef()
+        // var tICG=createTemp()
+        // var TeICG=React.createRef()
+        if(EXP()){
+            if(t[i].CP==="]"){
+                i++
+                if(N_ARR()){
+                    return true
+                }
+            }
+        }
+    }
+    return false
+}
+function OTHER_VALUE(){
+    if(t[i].CP==="."){
+        i++
+        if(t[i].CP==="ID"){
+            i++
+            if(INIT_VALUE()){
+                return true
+            }
+        }
+    }
+    else if(t[i].CP==="("){
+        i++
+        if(CALLING_PARAM()){
+            if(t[i].CP===")"){
+                i++
+                if(AFT_VALUE()){
+                    return true
+                }
+            }
+        }
+    }
+    return false
+}
+function AFT_VALUE(){
+    if(find(FirstOfOTHER_VALUE,t[i].CP)){
+        if(OTHER_VALUE()){
+            return true
+        }
+    }
+    else if(t[i].CP==="["){
+        i++
+        if(EXP()){
+            if(t[i].CP==="]"){
+                i++
+                if(N_ARR()){
+                    return true
+                }
+            }
+        }
+    }
+    return false
+}
+function N_ARR(){
+    if(find(FollowOfINIT_VALUE1,t[i].CP)){
+        return true
+    }
+    else if(find(FirstOfOTHER_VALUE,t[i].CP)){
+        if(OTHER_VALUE()){
+            return true
+        }
+    }
+    else if(t[i].CP==="["){
+        i++
+        if(EXP()){
+            if(t[i].CP==="]"){
+                i++
+                if(N_ARR2()){
+                    return true
+                }
+            }
+        }
+    }
+    return false
+}
+function N_ARR2(){
+    if(find(FollowOfINIT_VALUE1,t[i].CP)){
+        return true
+    }
+    else if(find(FirstOfOTHER_VALUE,t[i].CP)){
+        if(OTHER_VALUE()){
+            return true
+        }
+    }
+    return false
+}
+
+
+function NEXT_GTSWID(Tl,scope,t2ICG){
     if(t[i].CP==="inc_dec"){
         i++
         return true
@@ -372,15 +488,15 @@ function NEXT_GTSWID(){
     }
     else if(t[i].CP==="AOR" || t[i].CP==="AOP"){
         i++
-        if(GTSDEC()){
+        if(GTSDEC(Tl,scope,t2ICG)){
             return true
         }
     }
     return false
 }
-function GTSDEC(){
+function GTSDEC(Tl,scope,t2ICG){
     if(find(DEC21,t[i].CP)){
-        if(DEC2()){
+        if(DEC2(Tl,scope,null,t2ICG)){
             return true
         }
     }
@@ -2232,105 +2348,6 @@ function NEXT_VAL(){
         return true
     }
 }
-function INIT_VALUE(){
-    if(find(FollowOfINIT_VALUE1,t[i].CP)){
-        return true
-    }
-    else if(find(FirstOfOTHER_VALUE,t[i].CP)){
-        if(OTHER_VALUE()){
-            return true
-        }
-    }
-    else if(t[i].CP==="["){
-        i++
-        if(EXP()){
-            if(t[i].CP==="]"){
-                i++
-                if(N_ARR()){
-                    return true
-                }
-            }
-        }
-    }
-    return false
-}
-function OTHER_VALUE(){
-    if(t[i].CP==="."){
-        i++
-        if(t[i].CP==="ID"){
-            i++
-            if(INIT_VALUE()){
-                return true
-            }
-        }
-    }
-    else if(t[i].CP==="("){
-        i++
-        if(CALLING_PARAM()){
-            if(t[i].CP===")"){
-                i++
-                if(AFT_VALUE()){
-                    return true
-                }
-            }
-        }
-    }
-    return false
-}
-function AFT_VALUE(){
-    if(find(FirstOfOTHER_VALUE,t[i].CP)){
-        if(OTHER_VALUE()){
-            return true
-        }
-    }
-    else if(t[i].CP==="["){
-        i++
-        if(EXP()){
-            if(t[i].CP==="]"){
-                i++
-                if(N_ARR()){
-                    return true
-                }
-            }
-        }
-    }
-    return false
-}
-function N_ARR(){
-    if(find(FollowOfINIT_VALUE1,t[i].CP)){
-        return true
-    }
-    else if(find(FirstOfOTHER_VALUE,t[i].CP)){
-        if(OTHER_VALUE()){
-            return true
-        }
-    }
-    else if(t[i].CP==="["){
-        i++
-        if(EXP()){
-            if(t[i].CP==="]"){
-                i++
-                if(N_ARR2()){
-                    return true
-                }
-            }
-        }
-    }
-    return false
-}
-function N_ARR2(){
-    if(find(FollowOfINIT_VALUE1,t[i].CP)){
-        return true
-    }
-    else if(find(FirstOfOTHER_VALUE,t[i].CP)){
-        if(OTHER_VALUE()){
-            return true
-        }
-    }
-    return false
-}
-
-
 
 // function GT_VALUE(){
 //     if(t[i].CP==="."){
