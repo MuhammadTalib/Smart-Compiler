@@ -1,13 +1,8 @@
-
 import React from 'react';
 import { find, Start1, DEFS1, DEFS3, DEFS2, MST1, MST2, CLASS_MST1, SST11, SSTNEXT1, ELSE1, FOR_PARAM_21, FirstOfEXP, 
         FirstOfINIT_VALUE_2, NextConstDT1, CALLING_PARAMS1,DEC11, E1, EXP11, CONST, EXP12, N_INIT_VALUE1, ARRAY1, ARRAY_VALUES1, 
         FirstOfMOV, FirstOfMergedInit, FollowOfMergedN_ARR, FollowOfINIT_VALUE1, FirstOfOTHER_VALUE, DEC21 } from "./SelectionSets"
-
-
 import { createTemp,createLabel, Output } from "../ICG/ICGfunctions";
-
-Output("<<--<<$>>-->>Intermediate Code<<--<<$>>-->>\n\n")
 
 var i,t,syntax=true,inFuncP=false
 var ST
@@ -1193,8 +1188,9 @@ function DEC(scope,ref=null){
         i++
         if(t[i].CP==="ID"){
             var N = t[i].VP
+            var tICG=N
             i++
-            if(DEC1(T,scope,ref)){ 
+            if(DEC1(T,scope,ref,tICG)){ 
                 if(ref!==null){
                     if(!ST.insertCDT(N,T,"public",null,ref)){
                         console.log("Redeclaration Error | Class Attribute at Line :", t[i].line,"Variable",N)
@@ -1211,7 +1207,7 @@ function DEC(scope,ref=null){
     }
     return false
 }
-function DEC1(Tl,scope,ref){
+function DEC1(Tl,scope,ref,tICG){
     if(find(DEC11,t[i].CP) ){
         return true
     }
@@ -1219,7 +1215,10 @@ function DEC1(Tl,scope,ref){
         var O=t[i].VP
         i++
         var Tr=React.createRef()
-        if(DEC2(Tr,scope,ref)){
+        var t2ICG=React.createRef()
+        console.log("t2ICG before DEC2",t2ICG)
+        if(DEC2(Tr,scope,ref,t2ICG)){
+            Output(tICG+"="+t2ICG.current)
             if(!ST.compatibility(Tl,Tr.current,O)){
                 console.log("Mismatch Assigning Type | Can't Assign ",Tl," variable to ",Tr.current," type")
             }
@@ -1228,23 +1227,27 @@ function DEC1(Tl,scope,ref){
     }
     return false
 }
-function DEC2(T,scope,ref) {
+function DEC2(T,scope,ref,t2ICG) {
     if(t[i].CP==="ID"){
         var N=t[i].VP
         var CN=React.createRef()
         CN.current=null
         i++
-        if(DEC3(N,T,scope,CN)){
+        if(DEC3(N,T,scope,CN,t2ICG)){
             return true
         }
     }
-    else if(EXP(T,scope,ref)){
+    else if(EXP(T,scope,ref,t2ICG)){
         return true
     }
     return false
 }
-function DEC3(N,T,scope,CN){
+function DEC3(N,T,scope,CN,t2ICG){
     if(find(DEC11,t[i].CP) ){
+        console.log("DEC11",t[i].CP)
+        var t1ICG=createTemp()
+        Output(t1ICG+" = "+N)
+        t2ICG.current=t1ICG
         if(CN.current!==null){
             T.current=ST.lookupCDT(N,CN).Type
             if(!T.current){
@@ -1261,7 +1264,8 @@ function DEC3(N,T,scope,CN){
     }
     else if(t[i].CP==="[" || t[i].CP==="." || t[i].CP==="(" || t[i].CP==="$"){
         var Tl=React.createRef()
-        if(MERGED_INIT(N,Tl,scope,CN)){
+        console.log("going in MERGED INIT from DEC3",t2ICG)
+        if(MERGED_INIT(N,Tl,scope,CN,t2ICG)){
             if(EXP1(Tl,T,scope)){
                 return true
             }
@@ -1281,15 +1285,20 @@ function DEC3(N,T,scope,CN){
                 console.log("Undeclared Variable | ",N," not found at line",t[i].line)
             }
         }
-        if(EXP1(Tl,T,scope,null)){
+        var taICG=createTemp()
+        Output(taICG+" = "+N)
+        t1ICG=React.createRef()
+        t1ICG.current=taICG
+        if(EXP1(Tl,T,scope,null,t2ICG,t1ICG)){
             return true
         }
     }
     return false
 }
-function MERGED_INIT(N,T,scope,CN){
+function MERGED_INIT(N,T,scope,CN,t2ICG){
     if(find(FirstOfMOV, t[i].CP) ){
-        if(MOV(N,S,T,CN)){
+        console.log("going in MOV from MERGED INIT",t2ICG)
+        if(MOV(N,S,T,CN,t2ICG)){
             return true
         }
     }
@@ -1310,9 +1319,11 @@ function MERGED_INIT(N,T,scope,CN){
     }
     return false
 }
-function MOV(N,scope,T,CN){
+function MOV(N,scope,T,CN,t2ICG){
     if(t[i].CP==="."){
         if(N) if(CN.current===null){
+            var CNICG=createTemp()
+            Output(CNICG+" = "+N)
             CN.current=ST.lookupST(N)
             if(!CN.current){
                 console.log("Undeclared Variable | Variable ",N," not declared")
@@ -1320,6 +1331,7 @@ function MOV(N,scope,T,CN){
         }else{
             var ref=React.createRef()
             ref= ST.lookupCT(CN.current).ref
+            Output(CNICG+" = "+N)
             CN.current=ST.lookupCDT(N,ref)
             if(!CN.current){
                 console.log("Undeclared Variable | Variable ",N," not declared")
@@ -1327,9 +1339,10 @@ function MOV(N,scope,T,CN){
         }
         i++
         if(t[i].CP==="ID"){
-            var N=t[i].VP
+            N=t[i].VP
             i++
-            if(MERGED1(N,scope,T,CN)){
+            console.log("going in MERGED1 from MOV",t2ICG)
+            if(MERGED1(N,scope,T,CN,CNICG,t2ICG)){
                 return true
             }
         }
@@ -1348,7 +1361,7 @@ function MOV(N,scope,T,CN){
                         console.log("Undeclared Function | Function ",N," not declared")
                     }
                 }else{
-                    var ref=React.createRef()
+                    ref=React.createRef()
                     ref= ST.lookupCT(CN.current).ref
                     CN.current=ST.lookupCDT_Functions(N,PL.current,ref,"public")
                     if(!CN.current){
@@ -1379,19 +1392,26 @@ function MOV(N,scope,T,CN){
     return false
 }
 
-function MERGED1(N,scope,T,CN){
+function MERGED1(N,scope,T,CN,CNICG,t2ICG){
     if(find(EXP11,t[i].CP)){
         if(CN.current===null){
+            var CN2ICG=React.createRef()
+            CN2ICG.current=createTemp()
+            Output(CN2ICG.current+" = "+CNICG+"."+N)
             CN.current=ST.lookupST(N)
         }else{
             var ref=React.createRef()
             ref= ST.lookupCT(CN.current).ref
+            CN2ICG=React.createRef()
+            CN2ICG.current=createTemp()
+            Output(CN2ICG.current+" = "+CNICG+"."+N)
             CN.current=ST.lookupCDT(N,ref)
             if(!CN.current){
                 console.log("Undeclared Variable | Variable ",N," not declared")
             }
         }
-        if(EXP1(CN,T,scope)){
+        console.log("going in EXP1 from MERGED 1",t2ICG)
+        if(EXP1(CN,T,scope,t2ICG,CN2ICG)){
             return true
         }
     }
@@ -1515,28 +1535,56 @@ function NEXT_DEC(){
     }
     return false
 }
-function EXP(T, scope,ref){
+function EXP(T, scope,ref,tICG){
     if(t[i].CP === "ID" || find(E1,t[i].CP)){
         var Tl=React.createRef()
-        if(VAL(Tl,scope,ref)){
-            if(EXP1(Tl,T,scope,ref)){
+        var t2ICG=React.createRef()
+        if(VAL(Tl,scope,ref,t2ICG)){
+            if(EXP1(Tl,T,scope,ref,tICG,t2ICG)){
                 return true
             }
         }
     }
     return false
 }
-function EXP1(Tl,T,scope,ref){
+function EXP1(Tl,T,scope,ref,tICG,t2ICG){
+    if(t[i].CP==="inc_dec"){
+        i++
+        t2ICG=createTemp()
+        Output(t2ICG+" = "+tICG.current)
+        var t3ICG=createTemp()
+        Output(t3ICG+" = "+t[i-1].VP+t2ICG)
+        tICG.current=t3ICG
+        console.log("inc dec true")
+        return true
+    }
     if(find(EXP12,t[i].CP)){
+        console.log("here",tICG,t2ICG)
+        tICG.current=t2ICG.current
         T.current=Tl.current
         return true
     }
     else if(find(EXP11,t[i].CP)  || t[i].CP==="(") {
-        if(Q_DASH(Tl,T,scope,ref)){
-            if(R_DASH(Tl,T,scope,ref)){
-                if(S_DASH(Tl,T,scope,ref)){
-                    if(T_DASH(Tl,T,scope,ref)){
-                        if(E_DASH(Tl,T,scope,ref)){
+        if(Q_DASH(Tl,T,scope,ref,tICG,t2ICG)){     //MDM 
+            var swap=tICG.current
+            tICG.current=t2ICG.current
+            t2ICG.current=swap
+            if(R_DASH(Tl,T,scope,ref,tICG,t2ICG)){     //PM
+                swap=tICG.current
+                tICG.current=t2ICG.current
+                t2ICG.current=swap
+                if(S_DASH(Tl,T,scope,ref,tICG,t2ICG)){    //ROP
+                    swap=tICG.current
+                    tICG.current=t2ICG.current
+                    t2ICG.current=swap
+                    if(T_DASH(Tl,T,scope,ref,tICG,t2ICG)){    //&&
+                        swap=tICG.current
+                        tICG.current=t2ICG.current
+                        t2ICG.current=swap
+                        if(E_DASH(Tl,T,scope,ref,tICG,t2ICG)){    //||
+                            swap=tICG.current
+                            tICG.current=t2ICG.current
+                            t2ICG.current=swap
                             return true
                         }
                     }
@@ -1546,30 +1594,36 @@ function EXP1(Tl,T,scope,ref){
     }
     return false
 }
-function E_DASH(Tl,T,scope,ref){
+function E_DASH(Tl,T,scope,ref,tICG,t2ICG){
     if(t[i].CP==="||"){
         var O=t[i].VP
         i++
         var Tr=React.createRef()
-        if(L(Tr,scope,ref)){
+        var TrICG=React.createRef()
+        if(L(Tr,scope,ref,TrICG)){
+            var TaICG=React.createRef()
+            TaICG.current=createTemp()
+            Output(TaICG.current+" = "+t2ICG.current+" || "+TrICG.current)
             var Ta=React.createRef()
             Ta.current=ST.compatibility(Tl.current,Tr.current,O)
-            if(E_DASH(Ta,T,scope,ref)){
+            if(E_DASH(Ta,T,scope,ref,tICG,TaICG)){
                 return true
             }
         }
     }
     else if(find(EXP11,t[i].CP)){
+        tICG.current=t2ICG.current
         T.current=Tl.current
         return true
     }
     return false
 }
-function L(T,scope,ref){
+function L(T,scope,ref,tICG){
     if(find(EXP11,t[i].CP) || t[i].CP==="("){
         var Tl=React.createRef()
-        if(S(Tl,scope,ref)){
-            if(T_DASH(Tl,T,scope,ref)){
+        var t2ICG=React.createRef()
+        if(S(Tl,scope,ref,t2ICG)){
+            if(T_DASH(Tl,T,scope,ref,tICG,t2ICG)){
                 return true
             }
         }
@@ -1577,30 +1631,36 @@ function L(T,scope,ref){
     return false
 }
 
-function T_DASH(Tl,T,scope,ref){
+function T_DASH(Tl,T,scope,ref,tICG,t2ICG){
     if(t[i].CP==="&&"){
         var O=t[i].VP
         i++
         var Tr=React.createRef()
-        if(S(Tr,scope,ref)){
+        var TrICG=React.createRef()
+        if(S(Tr,scope,ref,TrICG)){
+            var TaICG=React.createRef()
+            TaICG.current=createTemp()
+            Output(TaICG.current+" = "+t2ICG.current+" && "+TrICG.current)
             var Ta=React.createRef()
             Ta.current=ST.compatibility(Tl.current,Tr.current,O)
-            if(T_DASH(Ta,T,scope,ref)){
+            if(T_DASH(Ta,T,scope,ref,tICG,TaICG)){
                 return true
             }
         }
     }
     else if(find(EXP11,t[i].CP)){
+        tICG.current=t2ICG.current
         T.current=Tl.current
         return true
     }
     return false
 }
-function S(T,scope,ref){
+function S(T,scope,ref,tICG){
     if(find(EXP11,t[i].CP) || t[i].CP==="("){
         var Tl=React.createRef()
-        if(R(Tl,scope,ref)){
-            if(S_DASH(Tl,T,scope,ref)){
+        var t2ICG=React.createRef()
+        if(R(Tl,scope,ref,t2ICG)){
+            if(S_DASH(Tl,T,scope,ref,tICG,t2ICG)){
                 return true
             }
         }
@@ -1608,30 +1668,36 @@ function S(T,scope,ref){
     return false
 }
 
-function S_DASH(Tl,T,scope,ref){
+function S_DASH(Tl,T,scope,ref,tICG,t2ICG){
     if(t[i].CP==="ROP"){
         var O=t[i].VP
         i++
         var Tr=React.createRef()
-        if(R(Tr,scope,ref)){
+        var TrICG=React.createRef()
+        if(R(Tr,scope,ref,TrICG)){
+            var TaICG=React.createRef()
+            TaICG.current=createTemp()
+            Output(TaICG.current+" = "+t2ICG.current+" "+O+" "+TrICG.current)
             var Ta=React.createRef()
             Ta.current=ST.compatibility(Tl.current,Tr.current,O)
-            if(S_DASH(Ta,T,scope,ref)){
+            if(S_DASH(Ta,T,scope,ref,tICG,TaICG)){
                 return true
             }
         }
     }
     else if(find(EXP11,t[i].CP)){
+        tICG.current=t2ICG.current
         T.current=Tl.current
         return true
     }
     return false
 }
-function R(T,scope,ref){
+function R(T,scope,ref,tICG){
     if(find(EXP11,t[i].CP) || t[i].CP==="("){
         var Tl=React.createRef()
-        if(Q(Tl,scope)){
-            if(R_DASH(Tl,T,scope,ref)){
+        var t2ICG=React.createRef()
+        if(Q(Tl,scope,ref,t2ICG)){
+            if(R_DASH(Tl,T,scope,ref,tICG,t2ICG)){
                 return true
             }
         }
@@ -1639,73 +1705,85 @@ function R(T,scope,ref){
     return false
 }
 
-function R_DASH(Tl,T,scope,ref){
+function R_DASH(Tl,T,scope,ref,tICG,t2ICG){
     if(t[i].CP==="PM"){
         var O=t[i].VP
         i++
+        var TrICG=React.createRef()
         var Tr=React.createRef()
-        if(Q(Tr,scope,ref)){
+        if(Q(Tr,scope,ref,TrICG)){
+            var TaICG=React.createRef()
+            TaICG.current=createTemp()
+            Output(TaICG.current+" = "+t2ICG.current+" "+O+" "+TrICG.current)
             var Ta=React.createRef()
             Ta.current=ST.compatibility(Tl.current,Tr.current,O)
-            if(R_DASH(Ta,T,scope,ref)){
+            if(R_DASH(Ta,T,scope,ref,tICG,TaICG)){
                 return true
             }
         }
     }
     else if(find(EXP11,t[i].CP)){
+        tICG.current=t2ICG.current
         T.current=Tl.current
         return true
     }
     return false
 }
-function Q(T,scope,ref){ 
+function Q(T,scope,ref,tICG){ 
     if(find(EXP11,t[i].CP) || t[i].CP==="("){
         var Tl=React.createRef()
-        if(VAL(Tl,scope,ref)){
-            if(Q_DASH(Tl,T,scope,ref)){
+        var t2ICG=React.createRef()
+        if(VAL(Tl,scope,ref,t2ICG)){
+            if(Q_DASH(Tl,T,scope,ref,tICG,t2ICG)){
                 return true
             }
         }
     }
     return false
 }
-function Q_DASH(Tl,T,scope,ref){
+function Q_DASH(Tl,T,scope,ref,tICG,t2ICG){
+    console.log("tICG in Q_DASG",tICG,t2ICG)
     if(t[i].CP==="MDM"){
         var O=t[i].VP
         i++
         var Tr=React.createRef()
-        if(VAL(Tr,scope,ref)){
+        var TrICG=React.createRef()
+        if(VAL(Tr,scope,ref,TrICG)){
+            var TaICG=React.createRef()
+            TaICG.current=createTemp()
+            Output(TaICG.current+" = "+t2ICG.current+" "+O+" "+TrICG.current)
             var Ta=React.createRef()
             Ta.current=ST.compatibility(Tl.current,Tr.current,O)
-            if(Q_DASH(Ta,T,scope,ref)){
+            if(Q_DASH(Ta,T,scope,ref,tICG,TaICG)){
                 return true
             }
         }
     }
     else if(find(EXP11,t[i].CP)){
+        tICG.current=t2ICG.current
         if(T) T.current=Tl.current
         return true
     }
     return false
 }
-function VAL(T,scope,ref){
+function VAL(T,scope,ref,tICG){
     if(find(E1,t[i].CP)){
-        if(E(T,scope,ref)){
+        if(E(T,scope,ref,tICG)){
             return true
         }
     }
     else if(t[i].CP==="ID"){
-        if(F(T,scope,ref)){
+        if(F(T,scope,ref,tICG)){
             return true
         }
     }
     return false
 }
 
-function E(T,scope,ref){
+function E(T,scope,ref,tICG){
     if(t[i].CP==="("){
         i++
-        if(EXP(T,scope,ref)){
+        if(EXP(T,scope,ref,tICG)){
             if(t[i].CP===")"){
                 i++
                 return true
@@ -1714,19 +1792,30 @@ function E(T,scope,ref){
     }
     else if(t[i].CP==="!"){
          i++
-        if(VAL(T,scope,ref)){
+        if(VAL(T,scope,ref,tICG)){
+            var t2ICG=createTemp()
+            Output(t2ICG+"=!"+tICG.current)
+            tICG.current=t2ICG
             return true
         }
     }
     else if(t[i].CP==="inc_dec"){
         i++
-        if(F(T,scope,ref)){
+        var Tl=React.createRef()
+        if(F(Tl,scope,ref,tICG)){
+            if(!ST.compatibility("int",Tl.current,"+")){
+                console.log("Can't increment decrement variable of ",Tl.current," type")
+            }
+            T.current=Tl.current
             return true
         }
         
     }
     else if(find(CONST,t[i].CP)){
         T.current = t[i].CP
+        t2ICG=createTemp()
+        Output(t2ICG+"="+t[i].VP)
+        tICG.current=t2ICG
         i++
         return true
     }
@@ -1746,12 +1835,12 @@ function E(T,scope,ref){
     }
     return false
 }
-function F(T, scope,ref){
+function F(T, scope,ref,tICG){
     if(t[i].CP==="ID"){
         var N=t[i].VP
         i++
         var CN=React.createRef()
-        if(NEW_ASGN(N, T, scope, ref, CN)){
+        if(NEW_ASGN(N, T, scope, ref, CN, tICG)){
             T.current=CN.current
             return true
         }
@@ -1759,6 +1848,10 @@ function F(T, scope,ref){
 }
 function NEW_ASGN(N,T,scope,ref,CN){
     if(t[i].CP==="inc_dec"){
+        var t2ICG=createTemp()
+        Output(t2ICG+" = "+N)
+        var t3ICG=createTemp()
+        Output(t3ICG+" = !"+t2ICG)
         var Tl
         if(ref){ Tl=ST.lookupCDT(N,ref) }
         else{ Tl=ST.lookupST(N) }
@@ -1835,7 +1928,7 @@ function OTHER_N_VALUE(N,T,scope,ref,CN){
                     console.log("Undeclared Variable | Variable ",N," not declared")
                 }
             }
-            var N=t[i].VP
+            N=t[i].VP
             i++
             if(N_INIT_VALUE(N,T,scope,ref,CN)){
                 return true
@@ -1856,7 +1949,7 @@ function OTHER_N_VALUE(N,T,scope,ref,CN){
                         console.log("Undeclared Function | Function ",N," not declared")
                     }
                 }else{
-                    var ref=React.createRef()
+                    ref=React.createRef()
                     ref= ST.lookupCT(CN.current).ref
                     CN.current=ST.lookupCDT_Functions(N,PL.current,ref,"public")
                     if(!CN.current){
@@ -1968,68 +2061,68 @@ function INIT_VALUE_2(T,scope){
     // }
     return false
 }
-function OBJECT(){
-    if(t[i].CP==="{"){
-        i++
-        if(PROP()){
-            if(t[i].CP==="}"){
-                i++
-                return true
-            }
-        }
-    }
-    return false
-}
-function PROP(){
-    if(t[i].CP==="ID" || t[i].CP==="..."){
-        if(OBJECT1()){
-            if(NEXT_PROP()){
-                return true
-            }
-        }
-    }
-    return false
-}
-function OBJECT1(){
-    if(t[i].CP==="ID"){
-        i++
-        if(t[i].CP===":"){
-            i++
-            if(EXP()){
-                return true
-            }
+// function OBJECT(){
+//     if(t[i].CP==="{"){
+//         i++
+//         if(PROP()){
+//             if(t[i].CP==="}"){
+//                 i++
+//                 return true
+//             }
+//         }
+//     }
+//     return false
+// }
+// function PROP(){
+//     if(t[i].CP==="ID" || t[i].CP==="..."){
+//         if(OBJECT1()){
+//             if(NEXT_PROP()){
+//                 return true
+//             }
+//         }
+//     }
+//     return false
+// }
+// function OBJECT1(){
+//     if(t[i].CP==="ID"){
+//         i++
+//         if(t[i].CP===":"){
+//             i++
+//             if(EXP()){
+//                 return true
+//             }
             
-        }
-    }
-    else if(t[i].CP==="..."){
-        if(SPREAD()){
-            return true
-        }
-    }
-}
-function NEXT_PROP(){
-    if(t[i].CP===","){
-        i++
-        if(PROP()){
-            return true
-        }
-    }
-    else if(t[i].CP==="}"){
-        return true
-    }
-}
-function SPREAD(){
-    if(t[i].CP==="..."){
-        i++
-        if(t[i].CP==="ID"){
-            i++
-            if(N_INIT_VALUE()){
-                return true
-            }
-        }
-    }
-    return false
-}
+//         }
+//     }
+//     else if(t[i].CP==="..."){
+//         if(SPREAD()){
+//             return true
+//         }
+//     }
+// }
+// function NEXT_PROP(){
+//     if(t[i].CP===","){
+//         i++
+//         if(PROP()){
+//             return true
+//         }
+//     }
+//     else if(t[i].CP==="}"){
+//         return true
+//     }
+// }
+// function SPREAD(){
+//     if(t[i].CP==="..."){
+//         i++
+//         if(t[i].CP==="ID"){
+//             i++
+//             if(N_INIT_VALUE()){
+//                 return true
+//             }
+//         }
+//     }
+//     return false
+// }
 function ARRAY(){
     if(t[i].CP==="["){
         i++

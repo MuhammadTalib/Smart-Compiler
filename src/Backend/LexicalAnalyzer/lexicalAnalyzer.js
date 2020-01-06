@@ -1,7 +1,6 @@
 import { wordBreaker } from './wordBreaker';
 import { isIdentifier, isKeyWord, isPunctuator, isOperator, isStringConstant,isIntConstant, isFloatConstant } from './validationFunctions';
 import { isAlphabet } from './validationFunctions';
-import { saveTokenSetAs } from '../fileHandler';
 
 export const lexicalAnalyzer = (text) => {
     console.log("lexical analyzer starts...")

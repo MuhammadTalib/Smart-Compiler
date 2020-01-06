@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import "./style.css"
 import MenuButton from '../MenuButton/Button';
 import {connect} from "react-redux"
-import { buttonData, run } from "./buttonData"
+import { buttonData } from "./buttonData"
 import {open_new_file} from "./../../Redux/File/action"
 import { RunCompiler } from '../../Backend/Compiler/RunFunction';
 class MenuBar extends Component {

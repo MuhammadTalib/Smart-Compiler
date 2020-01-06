@@ -35,7 +35,7 @@ export const GT_INIT2=["(",".","[","DT","while","for","do","const","ID","inc_dec
 
 export const CALLING_PARAMS1=["ID","(","!","inc_dec","float","int","string","FLOAT_CONST","INT_CONST","STRING_CONST","{","[",")"]
 
-export const DEC11=["}","=",")",",",";","DT","function","while","for","do","const","ID","inc_dec","if","switch","return","$"]
+export const DEC11=["}","=",")",",",";","DT","function","while","for","do","const","ID","if","switch","return","$"]
 export const DEC21=["ID","(","!","inc_dec","float","int","string","FLOAT_CONST","INT_CONST","STRING_CONST"]
 export const ARRAY_VALUES1=["...","ID","(","!","inc_dec","float","int","string","FLOAT_CONST","INT_CONST","STRING_CONST","{","["]
 export const E1=["this","(","!","inc_dec","float","int","string","FLOAT_CONST","INT_CONST","STRING_CONST","true","false"]

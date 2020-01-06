@@ -1,9 +1,6 @@
 import { saveAs as saveas } from 'file-saver';
 import { store } from './../Redux/store';
 import { add_new_file } from './../Redux/File/action';
-import { SyntaxAnalyzer } from './SyntaxAnalyzer/SyntaxAnalyzer';
-import checkingSemantics from "./SemanticAnalyzer/SemanticAnalyzer"
-import { savingIntermediateCode } from './ICG/ICGfunctions';
 
 export const saveAs = () => {
     var file = store.getState().files.selectedFile

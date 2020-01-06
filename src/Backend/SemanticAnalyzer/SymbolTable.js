@@ -1,7 +1,6 @@
 import ScopeTableItem from "./ScopeTable"
 import ClassData from "./ClassDataTable"
 import CalssTableItem from "./ClassTable"
-import { ReactReduxContext } from "react-redux"
 export default class SymbolTable{
     constructor(){
         this.ScopeTable=[]
@@ -142,6 +141,9 @@ export default class SymbolTable{
             {T1:"bool",T2:"bool",O:"<=",ret:"bool"},
             {T1:"bool",T2:"bool",O:"&&",ret:"bool"},
             {T1:"bool",T2:"bool",O:"||",ret:"bool"},
+
+            {T1:"int",T2:"bool",O:"+",ret:"bool"},
+            {T1:"float",T2:"bool",O:"-",ret:"bool"},
 
             {T1:"float",T2:"float",O:"+",ret:"float"},
             {T1:"float",T2:"float",O:"-",ret:"float"},

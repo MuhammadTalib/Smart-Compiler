@@ -4,6 +4,12 @@ import { store } from '../../Redux/store';
 export var Tindex=1
 export var Lindex=1
 export var ThreeAdressCode=""
+export const initICG=()=>{
+    ThreeAdressCode=""
+    Tindex=1
+    Lindex=1
+    Output("<<--<<$>>-->>Intermediate Code<<--<<$>>-->>\n\n")
+}
 export const createLabel=()=>{
     return "L"+Lindex++;
 }
