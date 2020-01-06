@@ -27,7 +27,7 @@ export const ARRAY1=["["]
 
 export const FirstOfINIT_VALUE_2=["ID","(","!","inc_dec","float","int","string","FLOAT_CONST","INT_CONST","STRING_CONST","true","false","{","["]
 
-export const NextConstDT1=["}",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$"]
+export const NextConstDT1=["}",";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$","function"]
 
 export const GT_INIT1=[";","DT","while","for","do","const","ID","inc_dec","if","switch","return","$"]
 

@@ -42,7 +42,6 @@ export default class SymbolTable{
         }
     }
     checkCompatibilityOfPL(PL,EPL,F){
-        console.log("pl epl ft",PL,EPL)
         if(PL.length!==EPL.length) {return console.log("Invalid Parameter length passed to Function ",F)}
         else for(var i=0;i<PL.length;i++){
             if(!this.compatibility(PL[i],EPL[i],"=")){
@@ -84,7 +83,6 @@ export default class SymbolTable{
     }
     insertST(N,T,S,ref){
         for(var i=0;i<this.ScopeTable.length;i++){
-            
             if(this.ScopeTable[i].Name===N && this.ScopeTable[i].Scope===S){
                 return false
             }

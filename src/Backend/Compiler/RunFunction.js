@@ -2,7 +2,7 @@ import { store } from './../../Redux/store';
 import { lexicalAnalyzer } from '../LexicalAnalyzer/lexicalAnalyzer';
 import { SyntaxAnalyzer } from '../SyntaxAnalyzer/SyntaxAnalyzer';
 import SymbolTable from "../SemanticAnalyzer/SymbolTable"
-import { savingIntermediateCode,initICG } from '../ICG/ICGfunctions';
+import { savingIntermediateCode,initICG, ThreeAdressCode } from '../ICG/ICGfunctions';
 import { saveTokenSetAs } from '../fileHandler';
 
 export const RunCompiler=(text)=>{
@@ -17,7 +17,7 @@ export const RunCompiler=(text)=>{
         console.log("Valid Syntax | Congratulations")
         console.log("ST",ST)
     }
-    
+    console.log("Output",ThreeAdressCode)
     savingIntermediateCode()
 
 }
