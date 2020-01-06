@@ -93,35 +93,35 @@ function SST(scope,RT){
 }
 function SST1(scope, RT){
     if(find(SST11,t[i].CP)){
-        if(syntax && t[i].CP==="DT" && DEC(scope)){
+        if(syntax && t[i].CP==="DT" && DEC(scope)){ //DONE
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if(syntax && t[i].CP==="while" && WHILE(scope)){
+        else if(syntax && t[i].CP==="while" && WHILE(scope)){   //DONE
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if(syntax && t[i].CP==="for" && FOR(scope)){
+        else if(syntax && t[i].CP==="for" && FOR(scope)){   
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if( syntax && t[i].CP==="do" && DO_WHILE(scope)){
+        else if( syntax && t[i].CP==="do" && DO_WHILE(scope)){      //DONE
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if(syntax && t[i].CP==="const" && CONST_DT(scope)){
+        else if(syntax && t[i].CP==="const" && CONST_DT(scope)){       //DONE
             if(t[i].CP===";"){
                 i++
                 return true
@@ -135,28 +135,28 @@ function SST1(scope, RT){
             }
             return true
         }
-        else if(syntax && t[i].CP==="if" && IF_ELSE(scope)){
+        else if(syntax && t[i].CP==="if" && IF_ELSE(scope)){    //DONE
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if(syntax && t[i].CP==="switch" && SWITCH_CASE(scope)){
+        else if(syntax && t[i].CP==="switch" && SWITCH_CASE(scope)){    
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         }
-        else if(syntax && t[i].CP==="return" && RETURN(scope,RT)){
+        else if(syntax && t[i].CP==="return" && RETURN(scope,RT)){  //DONE
             if(t[i].CP===";"){
                 i++
                 return true
             }
             return true
         } 
-        else if(syntax && t[i].CP==="ID" && GTSWID(scope)){
+        else if(syntax && t[i].CP==="ID" && GTSWID(scope)){ 
             if(t[i].CP===";"){
                 i++
                 return true
@@ -181,9 +181,9 @@ function WHILE(scope){
             i++
             var T=React.createRef()
             var tname=React.createRef()
-            if(EXP(T,scope,tname)){
+            if(EXP(T,scope,null,tname)){
                 var L2=createLabel()
-                Output("if("+tname+"==false) jmp "+L2)
+                Output("if("+tname.current+"==false) jmp "+L2)
                 var Tr=ST.compatibility(T.current,"bool","cond")
                 if(!Tr){ console.log("Condition Type Mismatch at line", t[i].line)}
                 if(t[i].CP===")"){
@@ -398,6 +398,8 @@ function GTSDEC(){
 }
 function DO_WHILE(scope){
     if(t[i].CP==="do"){
+        var L1=createLabel()
+        Output(L1+":")
         i++
         scope=ST.createScope()
         if(BODY(scope,null)){
@@ -406,9 +408,11 @@ function DO_WHILE(scope){
                 if(t[i].CP==="("){
                     i++
                     var Texp=React.createRef()
-                    if(EXP(Texp,scope)){
+                    var TICG=React.createRef()
+                    if(EXP(Texp,scope,null,TICG)){
                         if(!ST.compatibility(Texp.current,"bool","="))
                         if(t[i].CP===")"){
+                            Output("if("+TICG.current+"==true) jmp"+L1)
                             i++
                             return true
                         }
@@ -426,13 +430,21 @@ function IF_ELSE(scope){
         if(t[i].CP==="("){
             i++
             var T = React.createRef()
-            if(EXP(T, scope)){
-                if(!ST.compatibility(T.current,"bool","="))
+            var TICG=React.createRef()
+            var L1=createLabel()
+            //Output(L1+":")
+            console.log("before EXP")
+            if(EXP(T, scope,null,TICG)){
+                console.log("EXP pases",t[i].CP)
+                if(!ST.compatibility(T.current,"bool","=")){
+                    console.log("Type Mismatch")
+                }
                 if(t[i].CP===")"){
+                    Output("if("+TICG.current+"==false) jmp"+L1)
                     i++
                     scope=ST.createScope()
                     if(BODY(scope,null)){
-                        if(ELSE(scope)){
+                        if(ELSE(scope,L1)){
                             return true
                         }
                     }
@@ -442,15 +454,20 @@ function IF_ELSE(scope){
     }
     return syntaxFalse()
 }
-function ELSE(scope){
+function ELSE(scope,L1){
     if(t[i].CP==="else"){
+        var L2=createLabel()
+        Output("jmp "+L2)
+        Output(L1+":")
         i++
         scope=ST.createScope()
         if(BODY(scope,null)){
+            Output(L2+":")
             return true
         }
     }
     else if(find(ELSE1,t[i].CP)){
+        Output(L1+":")
         return true
     }
     return false
@@ -1990,7 +2007,6 @@ function OTHER_N_VALUE(N,T,scope,ref,CN,t2ICG,CNICG,tExtra){
                         console.log("Undeclared Function | Function ",N," not declared")
                     }
                 }else{
-                    console.log("CNICG FFFFFFFFF",CNICG)
                     Output(tICG.current+" = Call_"+CN.current+"_"+CNICG+"."+N+"_"+pllist+","+length)
                     ref=React.createRef()
                     ref= ST.lookupCT(CN.current).ref
