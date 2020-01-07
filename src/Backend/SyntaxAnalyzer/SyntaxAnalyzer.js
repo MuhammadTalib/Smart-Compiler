@@ -85,7 +85,6 @@ function MST(scope,RT) {
 function SST(scope,RT){
     if(SST1(scope,RT)){
         if(find(SSTNEXT1, t[i].CP)){
-            console.log("SST NECT 1 true",t[i].CP)
             return true
         }
     }
@@ -346,14 +345,16 @@ function C3(scope){
 }
 function GTSWID(scope){
     if(t[i].CP==="ID"){
-        var N=t[i].VP
+       // var N=t[i].VP
+        var CN=React.createRef()
+        var N=React.createRef()
+        N.current=t[i].VP
         i++
-        var T=React.createRef()
         var tICG=React.createRef()
-        if(INIT_VALUE(N,T,tICG)){
+        if(INIT_VALUE(N,CN,tICG)){
             var Tl=React.createRef()
             var t2ICG=React.createRef()
-            if(NEXT_GTSWID(Tl,scope,t2ICG)){
+            if(NEXT_GTSWID(N,CN,Tl,scope,t2ICG)){
                 Output(tICG.current+" = "+t2ICG.current)
                 return true
             }
@@ -362,15 +363,11 @@ function GTSWID(scope){
     return false
 }
 
-function INIT_VALUE(N,T,tICG){
+function INIT_VALUE(N,CN,tICG){
     if(find(FollowOfINIT_VALUE1,t[i].CP)){
         if(N){ 
             tICG.current=createTemp()
-            Output(tICG.current+" = "+N)
-            T.current=ST.lookupST(N)
-            if(!T.current){
-                console.log("Not declared")
-            }
+            Output(tICG.current+" = "+N.current)
         }
         return true
     }
@@ -381,10 +378,15 @@ function INIT_VALUE(N,T,tICG){
     }
     else if(t[i].CP==="["){
         i++
-        // var Te=React.createRef()
-        // var tICG=createTemp()
-        // var TeICG=React.createRef()
-        if(EXP()){
+        var Te=React.createRef()
+        var tICG=createTemp()
+        var TeICG=React.createRef()
+        if(EXP(Te,null,null,TeICG)){
+            if(N) Output(tICG+" = "+N.current+"[ "+TeICG.current+" ]")
+            //else Output(tICG+" = "+tExtra.current+"[ "+TeICG.current+" ]")
+            if(!ST.compatibility(Te.current,"int","=")){
+                console.log("Type Mismatch at line",t[i].line,"index cannot be not int value")
+            }
             if(t[i].CP==="]"){
                 i++
                 if(N_ARR()){
@@ -472,23 +474,66 @@ function N_ARR2(){
 }
 
 
-function NEXT_GTSWID(Tl,scope,t2ICG){
+function NEXT_GTSWID(N,CN,Tl,scope,t2ICG){
     if(t[i].CP==="inc_dec"){
+        var T=React.createRef()
+        T.current=ST.lookupST(N.current)
+        if(!T.current){
+            console.log("Not declared")
+        }
+        if(!ST.compatibility(T.current,"int","+")){
+            console.log("Can't Perform incremenet decrement on Mismatch Type")
+        }
         i++
         return true
     }
     else if(t[i].CP==="("){
         i++
-        if(CALLING_PARAM()){
+        var PL=React.createRef()
+        var PLICG=React.createRef()
+        if(CALLING_PARAM(PL,scope,PLICG)){
+            var tICG=React.createRef()
+            tICG.current=createTemp()
+            for(var j=0;j<PLICG.current.length;j++){
+                Output("Param "+PLICG.current[j].current)
+            }
+            var pllist="",length=PLICG.current.length
+            while(PLICG.current.length!==0){
+                pllist+=PLICG.current.pop().current+"_"
+            }
+            Output(tICG.current+" = Call_"+N+"_"+pllist+","+length)
             if(t[i].CP===")"){
+                if(CN.current===null){
+                    var FT=ST.lookupFT(N)
+                    if(FT && PL.current) ST.checkCompatibilityOfPL(PL.current.split(","),FT.split("-")[0].split(","),N)
+                    CN.current=FT.split(">").pop()
+                    if(!CN.current){
+                        console.log("Undeclared Function | Function ",N," not declared")
+                    }
+                }else{
+                    var ref=React.createRef()
+                    ref= ST.lookupCT(CN.current).ref
+                    CN.current=ST.lookupCDT_Functions(N,PL.current,ref,"public")
+                    if(!CN.current){
+                        console.log("Undeclared Function | Function ",N," not declared")
+                    }
+                }
                 i++
                 return true
             }
         }
     }
     else if(t[i].CP==="AOR" || t[i].CP==="AOP"){
+        T=React.createRef()
+        T.current=ST.lookupST(N.current)
+        if(!T.current){
+            console.log("Not declared")
+        }
         i++
         if(GTSDEC(Tl,scope,t2ICG)){
+            if(!ST.compatibility(T.current,Tl.current,"=")){
+                console.log("Can't Assign Mismatch Type")
+            }
             return true
         }
     }
@@ -1569,7 +1614,7 @@ function MOV(N,scope,T,CN,t2ICG,CNICG,tExtra){
             while(PLICG.current.length!==0){
                 pllist+=PLICG.current.pop().current+"_"
             }
-            Output(tICG.current+" = Call_"+N+pllist+","+length)
+            Output(tICG.current+" = Call_"+N+"_"+pllist+","+length)
             if(t[i].CP===")"){
                 if(CN.current===null){
                     
