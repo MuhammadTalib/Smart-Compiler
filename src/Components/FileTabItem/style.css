@@ -1,13 +1,13 @@
-.filetabitem{
-    width: 150px;
-    background-color: rgb(29, 29, 28);
-    padding-left: 8px;
+.filetabitem {
+  width: 150px;
+  background-color: rgb(29, 29, 28);
+  padding-left: 8px;
 }
-.filetabbtn{
-    width:150px;
-    border-radius: 0% !important;
-    font-size: 12px !important;
-    background-color: none;
-    color:#fff !important;
-    border-right:1px solid rgb(216, 216, 215) !important;
+.filetabbtn {
+  width: 150px;
+  border-radius: 0% !important;
+  font-size: 12px !important;
+  background-color: none;
+  color: #fff !important;
+  border-right: 1px solid rgb(216, 216, 215) !important;
 }

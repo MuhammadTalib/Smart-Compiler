@@ -3,11 +3,11 @@
   "version": "12.2.2",
   "private": true,
   "dependencies": {
+    "-": "^0.0.1",
     "@material-ui/core": "^4.3.3",
     "file-saver": "^2.0.2",
     "font-awesome": "^4.7.0",
     "fs": "0.0.1-security",
-    "gh-pages": "^2.1.1",
     "lined-textarea-react": "^1.1.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
@@ -16,7 +16,8 @@
     "react-redux": "^7.1.1",
     "react-scripts": "^3.1.1",
     "redux": "^4.0.4",
-    "redux-saga": "^1.0.5"
+    "redux-saga": "^1.0.5",
+    "save-dev": "^0.0.1-security"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -43,7 +44,6 @@
   },
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
   "main": "1",
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MuhammadTalib/Smart-Compiler.git"
@@ -53,5 +53,8 @@
   "bugs": {
     "url": "https://github.com/MuhammadTalib/Smart-Compiler/issues"
   },
-  "homepage": "https://github.com/MuhammadTalib/Smart-Compiler#readme"
+  "homepage": "https://muhammadtalib.github.io/Smart-Compiler/",
+  "devDependencies": {
+    "gh-pages": "^3.2.3"
+  }
 }

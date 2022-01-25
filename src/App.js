@@ -1,23 +1,23 @@
-import React from 'react';
-import './App.css';
-import Editor from './Components/Editor/Editor';
-import MenuBar from "./Components/MenuBar/Menubar"
-import Error from "./Components/Error/Error"
+import React from "react";
+import "./App.css";
+import Editor from "./Components/Editor/Editor";
+import MenuBar from "./Components/MenuBar/Menubar";
+import Error from "./Components/Error/Error";
 
 class App extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      text: ""
+      text: "",
     };
   }
 
   componentDidMount() {
-    this.readTextFile('./untitled.txt');
+    this.readTextFile("./untitled.txt");
   }
 
-  readTextFile = file => {
+  readTextFile = (file) => {
     /* var rawFile = new XMLHttpRequest();
      rawFile.open("GET", file, false);
      rawFile.onreadystatechange = () => {

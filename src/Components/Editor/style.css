@@ -1,29 +1,28 @@
-.mainwrapper{
-    position: relative;
-    width: 80%;
-    left:100%;
-    margin-right: 20px;
-    transform: translateX(-100%);
-   
+.mainwrapper {
+  position: relative;
+  width: 80%;
+  left: 100%;
+  margin-right: 20px;
+  transform: translateX(-100%);
 }
 
-.texteditor{
-    position: relative;
-    width: 95.2%;
-    height:664px !important;
-    border: 4px solid #c0d9ff;
-    font-size: 16px;
-    background-color: #9bbfc5;
-    margin-left: 40px;
+.texteditor {
+  position: relative;
+  width: 95.2%;
+  height: 664px !important;
+  border: 4px solid #c0d9ff;
+  font-size: 16px;
+  background-color: #9bbfc5;
+  margin-left: 40px;
 }
 
-.numberColumn{
-    position: absolute;
-    width:40px;
-    height: 672px !important;
-    font-size: 14px;
-    padding-top: 6px;
-    background-color: #1b62a5;
-    color: antiquewhite;
-    z-index: 1;
+.numberColumn {
+  position: absolute;
+  width: 40px;
+  height: 672px !important;
+  font-size: 14px;
+  padding-top: 6px;
+  background-color: #1b62a5;
+  color: antiquewhite;
+  z-index: 1;
 }

@@ -1,11 +1,10 @@
 class Stack {
-    constructor() {
-        this.node = null
-        this.next = null
+  constructor() {
+    this.node = null;
+    this.next = null;
+  }
+  push(node) {
+    if (this.node === null) {
     }
-    push(node) {
-        if (this.node === null) {
-
-        }
-    }
+  }
 }

@@ -1,6 +1,4 @@
-import { createStore } from "redux"
-import { reducers } from "./combineReducers"
+import { createStore } from "redux";
+import { reducers } from "./combineReducers";
 
-
-
-export const store = createStore(reducers)
+export const store = createStore(reducers);
