@@ -2,6 +2,7 @@
   "name": "ss",
   "version": "12.2.2",
   "private": true,
+  "homepage": "https://myapp.herokuapp.com/",
   "dependencies": {
     "-": "^0.0.1",
     "@material-ui/core": "^4.3.3",
@@ -45,15 +46,13 @@
   "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
   "main": "1",
   "repository": {
-    "type": "git",
-    "url": "git+https://github.com/MuhammadTalib/Smart-Compiler.git"
+    "type": "git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/MuhammadTalib/Smart-Compiler/issues"
   },
-  "homepage": "https://muhammadtalib.github.io/Smart-Compiler/",
   "devDependencies": {
     "gh-pages": "^3.2.3"
   }
